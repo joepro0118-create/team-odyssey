@@ -190,6 +190,7 @@ button {
 /* ---------- MAIN CANVAS (1x4 horizontal scroll) ---------- */
 .canvas {
   flex: 1;
+  min-height: 0; /* prevents flex overflow in a column layout on mobile */
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
@@ -213,7 +214,7 @@ button {
 .column {
   min-width: 100%;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   scroll-snap-align: start;
   flex-shrink: 0;
   overflow-y: auto;
@@ -816,4 +817,162 @@ button {
 
 .nudge-card.done .nudge-check {
   opacity: 1;
+}
+
+/* =========================================================
+   RESPONSIVE — phones & small tablets (≤768px)
+   Sidebar flips from a left column to a bottom tab bar.
+   Spacing, type, and components scale down to fit.
+   ========================================================= */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px; /* scroll-dots no longer offset by a side rail */
+  }
+
+  .app {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    order: 2;
+    width: 100%;
+    height: 68px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 18px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .sidebar-top {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .logo-wave {
+    display: none; /* not enough width to justify it at this size */
+  }
+
+  .nav-icons {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .nav-btn {
+    width: 52px;
+    height: 52px; /* keep ≥44px touch target */
+  }
+
+  .profile-pic {
+    width: 38px;
+    height: 38px;
+  }
+
+  .canvas {
+    order: 1;
+  }
+
+  .column {
+    padding: 28px 20px 40px;
+  }
+
+  .col-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .col-eyebrow {
+    font-size: 12px;
+  }
+
+  /* Column 1 — shrink the gauge and bar cards */
+  .wave-track svg {
+    width: 170px;
+    height: 170px;
+  }
+
+  .bars-row {
+    gap: 12px;
+  }
+
+  .bar-card {
+    width: 78px;
+    padding: 12px 10px 10px;
+  }
+
+  .bar-track {
+    height: 100px;
+  }
+
+  .modifier-row {
+    gap: 8px;
+  }
+
+  .modifier-chip {
+    font-size: 12px;
+    padding: 7px 12px;
+  }
+
+  /* Column 2 — bigger tap targets on checkboxes */
+  .logbook-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .check-load-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .checkbox {
+    width: 26px;
+    height: 26px;
+  }
+
+  .task-item {
+    padding: 14px;
+  }
+
+  .modal-box {
+    max-width: 90vw;
+    padding: 28px 22px;
+  }
+
+  /* Column 3 */
+  .mood-card,
+  .chart-card {
+    padding: 22px 18px;
+    max-width: 100%;
+  }
+
+  .mood-slider::-webkit-slider-thumb {
+    width: 30px;
+    height: 30px;
+  }
+
+  /* Column 4 */
+  .life-preserver {
+    width: 120px;
+    height: 120px;
+  }
+
+  .life-preserver-inner {
+    width: 52px;
+    height: 52px;
+  }
+
+  .nudges {
+    max-width: 100%;
+  }
+
+  .nudge-card {
+    padding: 14px;
+  }
+
+  /* Scroll dots sit just above the bottom tab bar now */
+  .scroll-dots {
+    bottom: 80px;
+    left: 50%;
+  }
 }
