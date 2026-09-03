@@ -175,8 +175,17 @@ export default function BurnoutForecastChart({
             return (
               <g
                 key={`node-${p.dayIndex}`}
+                role="button"
+                tabIndex={0}
+                aria-label={`Select ${p.dayLabel} forecast (score ${p.score})`}
                 style={{ cursor: 'pointer' }}
                 onClick={() => onSelectDay(i)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectDay(i);
+                  }
+                }}
               >
                 {/* Generous touch hit target */}
                 <rect
