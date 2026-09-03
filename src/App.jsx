@@ -13,7 +13,7 @@ export default function App() {
   const { tasks, toggleTask, rebalanceTask, hideLowPriority } = useTasks();
   const { mood, setMood, history } = useMood();
 
-  const [sleepLogs, setSleepLogs] = useState([
+  const [sleepLogs] = useState([
     { dayOffset: 0, hours: 6.5, targetHours: 8 },
     { dayOffset: 1, hours: 6.0, targetHours: 8 },
     { dayOffset: 2, hours: 5.5, targetHours: 8 },
@@ -23,7 +23,7 @@ export default function App() {
     { dayOffset: 6, hours: 8.0, targetHours: 8 },
   ]);
 
-  const [socialEvents, setSocialEvents] = useState([
+  const [socialEvents] = useState([
     { id: 1, title: 'Dinner with friends', dayOffset: 2, durationHours: 2 },
     { id: 2, title: 'Study group coffee', dayOffset: 5, durationHours: 1.5 },
   ]);
