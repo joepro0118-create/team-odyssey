@@ -1,4 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import BurnoutForecastChart from '../BurnoutForecast/BurnoutForecastChart';
+import FactorDrawer from '../BurnoutForecast/FactorDrawer';
+import { computeForecast } from '../../utils/forecastEngine';
+import {
+  mockForecastTasks,
+  mockForecastSleepLogs,
+  mockForecastSocialEvents,
+  mockForecastRecoveryBlocks,
+} from '../../data/mockForecastData';
 
 const BAR_CONFIG = [
   { key: 'mental_points', label: 'Mental', max: 40 },
@@ -6,8 +15,35 @@ const BAR_CONFIG = [
   { key: 'errands_points', label: 'Errands', max: 15 },
 ];
 
-export default function CapacityGauge({ capacity, statusColor, loading, error }) {
+export default function CapacityGauge({
+  capacity,
+  statusColor,
+  loading,
+  tasks = [],
+  sleepLogs = [],
+  socialEvents = [],
+}) {
   const [animated, setAnimated] = useState(false);
+  const [activeTab, setActiveTab] = useState('today');
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+
+  // Combine live tasks (today + rebalanced tomorrow) with the future schedule (days 2–6)
+  const combinedTasks = useMemo(() => {
+    const futureSchedule = mockForecastTasks.filter((t) => t.dayOffset >= 2);
+    return [...tasks, ...futureSchedule];
+  }, [tasks]);
+
+  const activeSleepLogs = sleepLogs && sleepLogs.length > 0 ? sleepLogs : mockForecastSleepLogs;
+  const activeSocialEvents = socialEvents && socialEvents.length > 0 ? socialEvents : mockForecastSocialEvents;
+
+  const forecast = useMemo(() => {
+    return computeForecast(
+      combinedTasks,
+      activeSleepLogs,
+      activeSocialEvents,
+      mockForecastRecoveryBlocks
+    );
+  }, [combinedTasks, activeSleepLogs, activeSocialEvents]);
 
   useEffect(() => {
     if (!capacity) return;
@@ -42,8 +78,63 @@ export default function CapacityGauge({ capacity, statusColor, loading, error })
 
   return (
     <section className="column col1">
-      <div className="col-eyebrow">Today</div>
-      <h2 className="col-title">Your capacity</h2>
+      <div
+        className="col1-header"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          marginBottom: '22px',
+          gap: '12px',
+          flexWrap: 'wrap',
+        }}
+      >
+        <div>
+          <div className="col-eyebrow">{activeTab === 'today' ? 'Today' : 'Horizon'}</div>
+          <h2 className="col-title" style={{ margin: 0 }}>
+            {activeTab === 'today' ? 'Your capacity' : 'Burnout Forecast'}
+          </h2>
+        </div>
+
+        {/* Tab Toggle Pill */}
+        <div className="view-toggle-pill" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'today'}
+            className={`view-toggle-btn ${activeTab === 'today' ? 'active' : ''}`}
+            onClick={() => setActiveTab('today')}
+          >
+            Today
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'forecast'}
+            className={`view-toggle-btn ${activeTab === 'forecast' ? 'active' : ''}`}
+            onClick={() => setActiveTab('forecast')}
+          >
+            7-Day Forecast
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'forecast' ? (
+        <div className="forecast-view-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '640px' }}>
+          <BurnoutForecastChart
+            forecast={forecast}
+            selectedDayIndex={selectedDayIndex}
+            onSelectDay={setSelectedDayIndex}
+          />
+          {selectedDayIndex !== null && forecast[selectedDayIndex] && (
+            <FactorDrawer
+              dayForecast={forecast[selectedDayIndex]}
+              onClose={() => setSelectedDayIndex(null)}
+            />
+          )}
+        </div>
+      ) : (
+        <>
 
       <div className="gauge-wrap">
         <div className="wave-track">
@@ -157,6 +248,8 @@ export default function CapacityGauge({ capacity, statusColor, loading, error })
           {socialRelief}
         </span>
       </div>
+        </>
+      )}
     </section>
   );
 }

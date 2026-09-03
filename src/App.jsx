@@ -13,6 +13,21 @@ export default function App() {
   const { tasks, toggleTask, rebalanceTask, hideLowPriority } = useTasks();
   const { mood, setMood, history } = useMood();
 
+  const [sleepLogs, setSleepLogs] = useState([
+    { dayOffset: 0, hours: 6.5, targetHours: 8 },
+    { dayOffset: 1, hours: 6.0, targetHours: 8 },
+    { dayOffset: 2, hours: 5.5, targetHours: 8 },
+    { dayOffset: 3, hours: 6.0, targetHours: 8 },
+    { dayOffset: 4, hours: 7.0, targetHours: 8 },
+    { dayOffset: 5, hours: 7.5, targetHours: 8 },
+    { dayOffset: 6, hours: 8.0, targetHours: 8 },
+  ]);
+
+  const [socialEvents, setSocialEvents] = useState([
+    { id: 1, title: 'Dinner with friends', dayOffset: 2, durationHours: 2 },
+    { id: 2, title: 'Study group coffee', dayOffset: 5, durationHours: 1.5 },
+  ]);
+
   const canvasRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -48,6 +63,9 @@ export default function App() {
           statusColor={statusColor}
           loading={loading}
           error={error}
+          tasks={tasks}
+          sleepLogs={sleepLogs}
+          socialEvents={socialEvents}
         />
         <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} />
         <StressTracker mood={mood} setMood={setMood} history={history} />
