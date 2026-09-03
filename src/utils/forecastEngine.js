@@ -319,10 +319,11 @@ export function runVerificationTests() {
 }
 
 // If executed directly in node: `node src/utils/forecastEngine.js`
-if (typeof process !== 'undefined' && process.argv && process.argv[1]?.includes('forecastEngine.js')) {
+const nodeProcess = globalThis?.process;
+if (nodeProcess?.argv && nodeProcess.argv[1]?.includes('forecastEngine.js')) {
   console.log('--- Running Forecast Engine Verification Tests ---');
   const allResults = runVerificationTests();
   const allPassed = allResults.every((r) => r.passed);
   console.log(`--- Result: ${allPassed ? 'ALL TESTS PASSED' : 'SOME TESTS FAILED'} (${allResults.length} tests) ---`);
-  if (!allPassed) process.exit(1);
+  if (!allPassed) nodeProcess.exit(1);
 }

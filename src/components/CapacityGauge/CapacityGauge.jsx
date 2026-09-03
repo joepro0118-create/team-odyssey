@@ -19,7 +19,6 @@ export default function CapacityGauge({
   capacity,
   statusColor,
   loading,
-  error: _error,
   tasks = [],
   sleepLogs = [],
   socialEvents = [],
