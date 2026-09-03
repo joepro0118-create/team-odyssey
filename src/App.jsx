@@ -65,9 +65,7 @@ export default function App() {
           error={error}
           tasks={tasks}
           sleepLogs={sleepLogs}
-          setSleepLogs={setSleepLogs}
           socialEvents={socialEvents}
-          setSocialEvents={setSocialEvents}
         />
         <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} />
         <StressTracker mood={mood} setMood={setMood} history={history} />
