@@ -675,6 +675,238 @@ button {
   max-width: 640px;
 }
 
+.forecast-chart-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-md);
+  max-width: 640px;
+  width: 100%;
+}
+
+.forecast-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.forecast-header-eyebrow {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--ocean-mid);
+}
+
+.forecast-header-sub {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-top: 3px;
+}
+
+.forecast-legend {
+  display: flex;
+  gap: 12px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.forecast-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+}
+
+.legend-dot {
+  width: 8.5px;
+  height: 8.5px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.view-toggle-pill {
+  display: inline-flex;
+  background: rgba(10, 61, 92, 0.08);
+  padding: 4px;
+  border-radius: var(--radius-pill);
+  gap: 4px;
+}
+
+.view-toggle-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ocean-mid);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-btn:hover {
+  color: var(--ocean-deep);
+}
+
+.view-toggle-btn.active {
+  background: var(--white);
+  color: var(--ocean-deep);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Factor Drawer Card */
+.factor-drawer-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 22px 26px;
+  box-shadow: var(--shadow-md);
+  max-width: 640px;
+  width: 100%;
+  animation: factorFadeIn 0.25s ease-out;
+  border-left: 4px solid var(--ocean-light);
+}
+
+@keyframes factorFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.factor-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(10, 61, 92, 0.08);
+}
+
+.factor-drawer-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+}
+
+.factor-drawer-subtitle {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.factor-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.factor-drawer-close {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink-faint);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+}
+
+.factor-drawer-close:hover {
+  color: var(--ocean-deep);
+  background: rgba(10, 61, 92, 0.06);
+}
+
+.factor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.factor-group-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.factor-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(243, 233, 214, 0.35);
+  margin-bottom: 6px;
+  transition: background 0.15s ease;
+}
+
+.factor-item:hover {
+  background: rgba(243, 233, 214, 0.65);
+}
+
+.factor-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.factor-info {
+  flex: 1;
+}
+
+.factor-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+}
+
+.factor-desc {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  margin-top: 1px;
+}
+
+.factor-impact {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.stressor-tag {
+  color: var(--coral-dark);
+  background: rgba(242, 164, 111, 0.2);
+}
+
+.relief-tag {
+  color: var(--ocean-mid);
+  background: rgba(127, 207, 182, 0.25);
+}
+
+.factor-empty {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(127, 207, 182, 0.15);
+}
+
 .chart-card h3 {
   margin: 0 0 4px;
   font-size: 16px;
@@ -874,7 +1106,7 @@ button {
   }
 
   .column {
-    padding: 28px 20px 40px;
+    padding: 22px 14px 40px;
   }
 
   .col-title {
@@ -884,6 +1116,31 @@ button {
 
   .col-eyebrow {
     font-size: 12px;
+  }
+
+  /* Forecast Chart & Factor Drawer mobile rules */
+  .forecast-chart-card {
+    padding: 20px 12px 16px;
+    max-width: 100%;
+    border-radius: var(--radius-md);
+  }
+
+  .forecast-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .forecast-legend {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .factor-drawer-card {
+    padding: 18px 12px;
+    max-width: 100%;
+    border-radius: var(--radius-md);
   }
 
   /* Column 1 — shrink the gauge and bar cards */

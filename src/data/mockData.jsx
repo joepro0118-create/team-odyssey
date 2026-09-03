@@ -14,12 +14,12 @@ export const capacityData = {
 };
 
 export const initialTasks = [
-  { id: 1, text: 'Finish econ problem set', energy: 'high', done: false, hidden: false, moved: false },
-  { id: 2, text: 'Study for chem midterm', energy: 'high', done: false, hidden: false, moved: false },
-  { id: 3, text: 'Group project presentation', energy: 'high', done: false, hidden: false, moved: false },
-  { id: 4, text: 'Reply to club emails', energy: 'low', done: false, hidden: false, moved: false },
-  { id: 5, text: 'Reorganize class notes', energy: 'low', done: false, hidden: false, moved: false },
-  { id: 6, text: 'Pick up textbook from library', energy: 'low', done: false, hidden: false, moved: false },
+  { id: 1, text: 'Finish econ problem set', energy: 'high', done: false, hidden: false, moved: false, dayOffset: 0, isDeadline: true },
+  { id: 2, text: 'Study for chem midterm', energy: 'high', done: false, hidden: false, moved: false, dayOffset: 0, isDeadline: true },
+  { id: 3, text: 'Group project presentation', energy: 'high', done: false, hidden: false, moved: false, dayOffset: 0, isDeadline: true },
+  { id: 4, text: 'Reply to club emails', energy: 'low', done: false, hidden: false, moved: false, dayOffset: 0, isDeadline: false },
+  { id: 5, text: 'Reorganize class notes', energy: 'low', done: false, hidden: false, moved: false, dayOffset: 0, isDeadline: false },
+  { id: 6, text: 'Pick up textbook from library', energy: 'low', done: false, hidden: false, moved: false, dayOffset: 0, isDeadline: false },
 ];
 
 export const stressHistory = [
