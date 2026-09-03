@@ -49,8 +49,7 @@ export function computeForecast(
   let daysSinceSocial = 1; // Default to 1 day since last contact
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const today = new Date();
-
+  const today = cfg.baseDate ? new Date(cfg.baseDate) : new Date();
   for (let i = 0; i < 7; i++) {
     const factors = [];
     const dateObj = new Date(today);
