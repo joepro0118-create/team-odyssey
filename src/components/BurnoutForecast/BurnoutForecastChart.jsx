@@ -178,6 +178,7 @@ export default function BurnoutForecastChart({
                 role="button"
                 tabIndex={0}
                 aria-label={`Select ${p.dayLabel} forecast (score ${p.score})`}
+                aria-pressed={isSelected}
                 style={{ cursor: 'pointer' }}
                 onClick={() => onSelectDay(i)}
                 onKeyDown={(e) => {
