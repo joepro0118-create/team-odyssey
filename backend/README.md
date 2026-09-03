@@ -12,6 +12,9 @@ The backend contains two independent stages:
 ```bash
 cd backend/
 
+# Run the 7-day Burnout Forecast engine & verification tests
+node forecastEngine.js
+
 # Run the scoring contract sample (standard library only)
 python engine.py
 
