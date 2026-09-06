@@ -1233,3 +1233,35 @@ button {
     left: 50%;
   }
 }
+/* Calendar check-in shares the existing ocean palette and column layout. */
+.calendar-checkin { border: 1px solid #c5ddd7; border-radius: 18px; padding: 20px; margin-bottom: 26px; background: #f6fbf8; color: var(--ocean-deep); }
+.checkin-heading { display: flex; align-items: flex-start; gap: 12px; justify-content: space-between; }
+.checkin-heading h3 { margin: 0 0 6px; font: 700 18px 'Quicksand', sans-serif; }
+.checkin-heading p, .calendar-checkin p { font-size: 12px; line-height: 1.6; }
+.source-badge { background: #fff0cf; color: #70541d; border-radius: 20px; padding: 6px 9px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.source-live { background: #d5eee3; color: #1d5e49; }
+.checkin-badge-group { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.clear-result-btn { border: 1px solid #abc7be; border-radius: 20px; padding: 5px 10px; color: #174b5b; background: white; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background 0.2s ease; }
+.clear-result-btn:hover:not(:disabled) { background: #edf6f2; }
+.clear-result-btn:focus-visible { outline: 3px solid #237a94; outline-offset: 3px; }
+.calendar-checkin summary { cursor: pointer; font-weight: 800; font-size: 13px; padding: 12px 0; }
+.calendar-checkin fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.calendar-checkin label { display: block; font-size: 12px; font-weight: 700; }
+.calendar-checkin input { width: 100%; box-sizing: border-box; min-width: 0; margin-top: 7px; padding: 10px; border: 1px solid #abc7be; border-radius: 8px; background: white; color: #173b49; font: inherit; }
+.calendar-checkin input[type=file] { font-size: 12px; }
+.calendar-checkin input:focus-visible, .calendar-checkin button:focus-visible, .calendar-checkin summary:focus-visible { outline: 3px solid #237a94; outline-offset: 3px; }
+.checkin-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.checkin-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.sample-calendar-btn { border: 1px solid #8aaea5; border-radius: 20px; padding: 9px 14px; color: #174b5b; background: white; font: inherit; font-size: 12px; cursor: pointer; }
+.calendar-checkin :disabled { opacity: .65; cursor: wait; }
+.checkin-note { color: #4e6c77; font-size: 12px; line-height: 1.6; margin: 12px 0; }
+.checkin-error { color: #8d301f; background: #fff0e8; padding: 12px; border-radius: 8px; }
+.calendar-totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.calendar-totals div { padding: 10px; border-radius: 10px; background: white; }
+.calendar-totals dt { font-size: 11px; color: #4e6c77; }
+.calendar-totals dd { margin: 5px 0 0; font-size: 21px; font-weight: 800; }
+@media (max-width: 480px) {
+  .calendar-checkin { padding: 14px; }
+  .checkin-heading { flex-wrap: wrap; }
+  .checkin-fields { grid-template-columns: 1fr; }
+}

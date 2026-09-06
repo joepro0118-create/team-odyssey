@@ -22,6 +22,8 @@ export default function CapacityGauge({
   tasks = [],
   sleepLogs = [],
   socialEvents = [],
+  calendarSchedule,
+  children,
 }) {
   const [animated, setAnimated] = useState(false);
   const [activeTab, setActiveTab] = useState('today');
@@ -29,21 +31,23 @@ export default function CapacityGauge({
 
   // Combine live tasks (today + rebalanced tomorrow) with the future schedule (days 2–6)
   const combinedTasks = useMemo(() => {
+    if (calendarSchedule) return tasks;
     const futureSchedule = mockForecastTasks.filter((t) => t.dayOffset >= 2);
     return [...tasks, ...futureSchedule];
-  }, [tasks]);
+  }, [tasks, calendarSchedule]);
 
-  const activeSleepLogs = sleepLogs && sleepLogs.length > 0 ? sleepLogs : mockForecastSleepLogs;
-  const activeSocialEvents = socialEvents && socialEvents.length > 0 ? socialEvents : mockForecastSocialEvents;
+  const activeSleepLogs = calendarSchedule ? calendarSchedule.sleepLogs : sleepLogs.length > 0 ? sleepLogs : mockForecastSleepLogs;
+  const activeSocialEvents = calendarSchedule ? calendarSchedule.socialEvents : socialEvents.length > 0 ? socialEvents : mockForecastSocialEvents;
 
   const forecast = useMemo(() => {
     return computeForecast(
       combinedTasks,
       activeSleepLogs,
       activeSocialEvents,
-      mockForecastRecoveryBlocks
+      calendarSchedule ? [] : mockForecastRecoveryBlocks,
+      calendarSchedule ? { baseDate: calendarSchedule.baseDate } : {}
     );
-  }, [combinedTasks, activeSleepLogs, activeSocialEvents]);
+  }, [combinedTasks, activeSleepLogs, activeSocialEvents, calendarSchedule]);
 
   useEffect(() => {
     if (!capacity) return;
@@ -78,6 +82,7 @@ export default function CapacityGauge({
 
   return (
     <section className="column col1">
+      {children}
       <div
         className="col1-header"
         style={{
@@ -121,6 +126,9 @@ export default function CapacityGauge({
 
       {activeTab === 'forecast' ? (
         <div className="forecast-view-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '640px' }}>
+          <p className="checkin-note">{calendarSchedule
+            ? 'Calendar-based scenario: your recent average sleep is assumed for each future night. Only tagged events are included; no recovery blocks are assumed. The forecast uses task counts and has a different formula from Today’s assessment.'
+            : 'Sample forecast — upload your calendar to explore your own schedule.'}</p>
           <BurnoutForecastChart
             forecast={forecast}
             selectedDayIndex={selectedDayIndex}

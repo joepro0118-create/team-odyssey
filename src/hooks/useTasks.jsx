@@ -24,7 +24,7 @@ export function useTasks() {
   // AND shifts its dayOffset to 1 (tomorrow).
   const rebalanceTask = () => {
     setTasks((prev) => {
-      const highTasks = prev.filter((t) => t.energy === 'high' && !t.moved);
+      const highTasks = prev.filter((t) => t.energy === 'high' && !t.moved && !t.done && !t.hidden && !t.isDeadline && t.dayOffset === 0);
       if (highTasks.length === 0) return prev;
       const lastId = highTasks[highTasks.length - 1].id;
       return prev.map((t) =>
@@ -44,5 +44,7 @@ export function useTasks() {
     );
   };
 
-  return { tasks, toggleTask, rebalanceTask, hideLowPriority };
+  const resetTasks = () => setTasks(initialTasks.map((t) => ({ dayOffset: 0, isDeadline: false, ...t })));
+
+  return { tasks, toggleTask, rebalanceTask, hideLowPriority, replaceTasks: setTasks, resetTasks };
 }

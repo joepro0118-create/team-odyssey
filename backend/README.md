@@ -9,6 +9,25 @@ The backend contains two independent stages:
 
 ## Quick Start
 
+For the integrated website, follow the repository root README and run
+`npm run dev` from the root. This starts `server.py` and Vite together.
+The calendar parser and `compute_capacity` contract remain unchanged.
+
+The local, stateless API provides:
+
+- `GET /api/health` — readiness check.
+- `POST /api/capacity` — JSON with `calendar_text`, `sleep_hours` (1–3 finite
+  numbers in 0–24) and `pending_errands_count` (integer in 0–1000).
+  `demo: true` selects the bundled fixture at a fixed sample date instead.
+- Success: `{capacity, input, schedule, source, as_of, warnings}`. The schedule
+  adapts tagged occurrences to the existing frontend forecast contract.
+- Errors: `{error}` with 400 for invalid inputs, 413 for oversized requests,
+  415 for non-JSON content, or 403 for unsupported browser origins.
+
+Uploads stay in memory. This adapter accepts calendar text, not file paths
+or remote feed URLs. It binds to loopback and is intended for local use.
+Run integration tests with `python -m unittest discover -s backend` from root.
+
 ```bash
 cd backend/
 

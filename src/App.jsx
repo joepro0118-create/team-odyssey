@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Sidebar from './components/Sidebar/Sidebar';
 import CapacityGauge from './components/CapacityGauge/CapacityGauge';
+import CalendarCheckIn from './components/CapacityGauge/CalendarCheckIn';
 import LoadBalancer from './components/LoadBalancer/LoadBalancer';
 import StressTracker from './components/StressTracker/StressTracker';
 import RecoveryZone from './components/RecoveryZone/RecoveryZone';
@@ -9,9 +10,20 @@ import { useTasks } from './hooks/useTasks';
 import { useMood } from './hooks/useMood';
 
 export default function App() {
-  const { capacity, loading, error, statusColor } = useCapacity();
-  const { tasks, toggleTask, rebalanceTask, hideLowPriority } = useTasks();
+  const { capacity, assessment, loading, error, statusColor, assessCalendar, clearAssessment } = useCapacity();
+  const { tasks, toggleTask, rebalanceTask, hideLowPriority, replaceTasks, resetTasks } = useTasks();
   const { mood, setMood, history } = useMood();
+
+  async function handleAssess(payload) {
+    const result = await assessCalendar(payload);
+    if (result) replaceTasks(result.schedule.tasks);
+    return result;
+  }
+
+  function handleClear() {
+    clearAssessment();
+    resetTasks();
+  }
 
   const [sleepLogs] = useState([
     { dayOffset: 0, hours: 6.5, targetHours: 8 },
@@ -62,12 +74,14 @@ export default function App() {
           capacity={capacity}
           statusColor={statusColor}
           loading={loading}
-          error={error}
+          calendarSchedule={assessment?.schedule}
           tasks={tasks}
           sleepLogs={sleepLogs}
           socialEvents={socialEvents}
-        />
-        <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} />
+        >
+          <CalendarCheckIn assessment={assessment} loading={loading} error={error} onAssess={handleAssess} onClear={handleClear} />
+        </CapacityGauge>
+        <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} calendarMode={Boolean(assessment)} />
         <StressTracker mood={mood} setMood={setMood} history={history} />
         <RecoveryZone onHideLowPriority={hideLowPriority} />
       </div>

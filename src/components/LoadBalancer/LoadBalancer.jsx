@@ -16,11 +16,12 @@ function TaskItem({ task, onToggle }) {
   );
 }
 
-export default function LoadBalancer({ tasks, toggleTask, rebalanceTask }) {
+export default function LoadBalancer({ tasks, toggleTask, rebalanceTask, calendarMode }) {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const highTasks = tasks.filter((t) => t.energy === 'high');
-  const lowTasks = tasks.filter((t) => t.energy === 'low');
+  const visibleTasks = tasks.filter(t => !t.hidden && (!calendarMode || t.dayOffset === 0 || t.moved));
+  const highTasks = visibleTasks.filter((t) => t.energy === 'high');
+  const lowTasks = visibleTasks.filter((t) => t.energy === 'low');
 
   const handleRebalance = () => {
     rebalanceTask();
@@ -35,9 +36,14 @@ export default function LoadBalancer({ tasks, toggleTask, rebalanceTask }) {
           Today's load
         </h2>
         <button className="check-load-btn" onClick={() => setModalOpen(true)}>
-          Check my load
+          Explore rebalancing
         </button>
       </div>
+
+      <p className="checkin-note">{calendarMode
+        ? 'Calendar planning preview. Completing or moving an item changes the forecast only; your calendar file and submitted Today assessment stay as submitted. Reimporting resets this plan.'
+        : 'Sample tasks. Add your calendar in Your capacity to load your schedule.'}</p>
+      {visibleTasks.length === 0 && <p>No tagged work, study or deadlines scheduled for today.</p>}
 
       <div className="waves-grid">
         <div>
