@@ -187,10 +187,33 @@ button {
   font-family: var(--font-display);
 }
 
+/* ---------- CANVAS WRAPPER & WAVE OVERLAY ---------- */
+.canvas-wrap {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+}
+
+.wave-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+}
+
 /* ---------- MAIN CANVAS (1x4 horizontal scroll) ---------- */
 .canvas {
   flex: 1;
-  min-height: 0; /* prevents flex overflow in a column layout on mobile */
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
@@ -215,11 +238,16 @@ button {
   min-width: 100%;
   width: 100%;
   height: 100%;
+  max-height: 100%;
   scroll-snap-align: start;
   flex-shrink: 0;
   overflow-y: auto;
-  padding: 40px 48px 60px;
+  overflow-x: hidden;
+  padding: 40px 48px 80px;
   position: relative;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sand-dark) transparent;
 }
 
 .column::-webkit-scrollbar {
@@ -229,6 +257,10 @@ button {
 .column::-webkit-scrollbar-thumb {
   background: var(--sand-dark);
   border-radius: 6px;
+}
+
+.column::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .col-eyebrow {
@@ -274,6 +306,17 @@ button {
   background: var(--ocean-mid);
   width: 22px;
   border-radius: 5px;
+}
+
+/* =========================================================
+   COLUMN 0 — Calendar Check-In
+   ========================================================= */
+.col-calendar {
+  background: linear-gradient(170deg, var(--white) 0%, #e8f4f0 48%, var(--seafoam-light) 100%);
+}
+
+.col-calendar .col-title {
+  margin-bottom: 24px;
 }
 
 /* =========================================================
@@ -371,6 +414,60 @@ button {
   font-weight: 700;
   color: var(--ocean-deep);
   box-shadow: var(--shadow-sm);
+}
+
+/* Heartbeat resting rate card */
+.heart-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 16px 22px;
+  margin-top: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(10, 61, 92, 0.08);
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.heart-icon {
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: heartPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes heartPulse {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.22); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+}
+
+.heart-bpm {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.heart-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ecg-line {
+  margin-left: auto;
+  width: 140px;
+  height: 32px;
+  opacity: 0.85;
 }
 
 /* =========================================================
@@ -1101,6 +1198,12 @@ button {
     height: 38px;
   }
 
+  .canvas-wrap {
+    order: 1;
+    flex: 1;
+    min-height: 0;
+  }
+
   .canvas {
     order: 1;
   }
@@ -1264,4 +1367,170 @@ button {
   .calendar-checkin { padding: 14px; }
   .checkin-heading { flex-wrap: wrap; }
   .checkin-fields { grid-template-columns: 1fr; }
+}
+
+/* =========================================================
+   LOCK SCREEN — Biometric Facial Unlock UI
+   ========================================================= */
+.lock-screen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 24px;
+  background: radial-gradient(circle at 50% 38%, #14496b 0%, #0a3d5c 42%, #052133 80%, #02121c 100%);
+  color: var(--white);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+.lock-screen::before {
+  content: '';
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(127, 207, 182, 0.16) 0%, rgba(79, 169, 196, 0.08) 50%, transparent 70%);
+  pointer-events: none;
+  animation: lockScreenPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes lockScreenPulse {
+  0% { transform: scale(0.92); opacity: 0.6; }
+  100% { transform: scale(1.08); opacity: 1; }
+}
+
+.scan-ring {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 61, 92, 0.75);
+  border: 3px solid rgba(127, 207, 182, 0.55);
+  box-shadow: 0 0 35px rgba(127, 207, 182, 0.35), inset 0 0 25px rgba(10, 61, 92, 0.9);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.scan-ring::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px dashed rgba(127, 207, 182, 0.7);
+  pointer-events: none;
+  animation: rotateReticle 14s linear infinite;
+}
+
+@keyframes rotateReticle {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.scan-ring video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.fallback-face {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 80px;
+  background: radial-gradient(circle at 45% 35%, rgba(31, 111, 139, 0.75), rgba(10, 61, 92, 0.95));
+  user-select: none;
+  animation: breatheFace 3s ease-in-out infinite alternate;
+}
+
+@keyframes breatheFace {
+  0% { transform: scale(0.95); }
+  100% { transform: scale(1.05); }
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, rgba(127, 207, 182, 0.4) 20%, #ffffff 50%, rgba(127, 207, 182, 0.4) 80%, transparent 100%);
+  box-shadow: 0 0 14px var(--seafoam), 0 0 28px var(--seafoam-light);
+  animation: laserSweep 2.2s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes laserSweep {
+  0% { top: 6%; opacity: 0.3; }
+  50% { top: 92%; opacity: 1; }
+  100% { top: 6%; opacity: 0.3; }
+}
+
+.lock-status {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.4px;
+  margin: 0 0 10px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-sub {
+  font-size: 15px;
+  color: var(--seafoam-light);
+  max-width: 440px;
+  line-height: 1.55;
+  min-height: 48px;
+  margin: 0 0 24px;
+  opacity: 0.92;
+}
+
+.continue-btn {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(14px);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  background: linear-gradient(135deg, var(--seafoam), #5cbd9e);
+  color: var(--ocean-deep);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 14px 44px;
+  box-shadow: 0 8px 24px rgba(127, 207, 182, 0.35);
+  cursor: pointer;
+}
+
+.continue-btn.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.continue-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 12px 30px rgba(127, 207, 182, 0.55);
+  background: linear-gradient(135deg, #95dfc9, var(--seafoam));
+}
+
+.continue-btn:active {
+  transform: translateY(0) scale(0.98);
 }

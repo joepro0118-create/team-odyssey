@@ -60,6 +60,7 @@ export default function App() {
   // animation so the wave masks the jump between columns.
   const goTo = (index) => {
     if (index === activeIndex) return;
+    setActiveIndex(index);
     waveRef.current?.play(() => scrollTo(index));
   };
 
@@ -93,6 +94,11 @@ export default function App() {
 
       <div className="canvas-wrap">
         <div className="canvas" ref={canvasRef}>
+          <section className="column col-calendar">
+            <div className="col-eyebrow">Setup</div>
+            <h2 className="col-title">Your Calendar</h2>
+            <CalendarCheckIn assessment={assessment} loading={loading} error={error} onAssess={handleAssess} onClear={handleClear} />
+          </section>
           <CapacityGauge
             capacity={capacity}
             statusColor={statusColor}
@@ -101,9 +107,7 @@ export default function App() {
             tasks={tasks}
             sleepLogs={sleepLogs}
             socialEvents={socialEvents}
-          >
-            <CalendarCheckIn assessment={assessment} loading={loading} error={error} onAssess={handleAssess} onClear={handleClear} />
-          </CapacityGauge>
+          />
           <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} calendarMode={Boolean(assessment)} />
           <StressTracker mood={mood} setMood={setMood} history={history} />
           <RecoveryZone onHideLowPriority={hideLowPriority} />
@@ -113,7 +117,7 @@ export default function App() {
       </div>
 
       <div className="scroll-dots">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={i}
             className={`dot ${activeIndex === i ? 'active' : ''}`}

@@ -25,7 +25,6 @@ export default function CapacityGauge({
   sleepLogs = [],
   socialEvents = [],
   calendarSchedule,
-  children,
 }) {
   const [animated, setAnimated] = useState(false);
   const [activeTab, setActiveTab] = useState('today');
@@ -90,7 +89,6 @@ export default function CapacityGauge({
 
   return (
     <section className="column col1">
-      {children}
       <div
         className="col1-header"
         style={{
