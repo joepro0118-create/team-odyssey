@@ -5,6 +5,8 @@ import CalendarCheckIn from './components/CapacityGauge/CalendarCheckIn';
 import LoadBalancer from './components/LoadBalancer/LoadBalancer';
 import StressTracker from './components/StressTracker/StressTracker';
 import RecoveryZone from './components/RecoveryZone/RecoveryZone';
+import LockScreen from './components/LockScreen/LockScreen';
+import WaveTransition from './components/WaveTransition/WaveTransition';
 import { useCapacity } from './hooks/useCapacity';
 import { useTasks } from './hooks/useTasks';
 import { useMood } from './hooks/useMood';
@@ -41,15 +43,24 @@ export default function App() {
   ]);
 
   const canvasRef = useRef(null);
+  const waveRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [unlocked, setUnlocked] = useState(false);
 
   // Each direct child of .canvas is a <section className="column ...">
   // rendered by the four components below, in order.
-  const goTo = (index) => {
+  const scrollTo = (index) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const target = canvas.children[index];
     target?.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+  };
+
+  // Plays the wave-splash + tide sound, then scrolls partway through the
+  // animation so the wave masks the jump between columns.
+  const goTo = (index) => {
+    if (index === activeIndex) return;
+    waveRef.current?.play(() => scrollTo(index));
   };
 
   useEffect(() => {
@@ -65,25 +76,33 @@ export default function App() {
     return () => canvas.removeEventListener('scroll', handleScroll);
   }, []);
 
+  if (!unlocked) {
+    return <LockScreen onContinue={() => setUnlocked(true)} />;
+  }
+
   return (
     <div className="app">
       <Sidebar activeIndex={activeIndex} onNavigate={goTo} />
 
-      <div className="canvas" ref={canvasRef}>
-        <CapacityGauge
-          capacity={capacity}
-          statusColor={statusColor}
-          loading={loading}
-          calendarSchedule={assessment?.schedule}
-          tasks={tasks}
-          sleepLogs={sleepLogs}
-          socialEvents={socialEvents}
-        >
-          <CalendarCheckIn assessment={assessment} loading={loading} error={error} onAssess={handleAssess} onClear={handleClear} />
-        </CapacityGauge>
-        <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} calendarMode={Boolean(assessment)} />
-        <StressTracker mood={mood} setMood={setMood} history={history} />
-        <RecoveryZone onHideLowPriority={hideLowPriority} />
+      <div className="canvas-wrap">
+        <div className="canvas" ref={canvasRef}>
+          <CapacityGauge
+            capacity={capacity}
+            statusColor={statusColor}
+            loading={loading}
+            calendarSchedule={assessment?.schedule}
+            tasks={tasks}
+            sleepLogs={sleepLogs}
+            socialEvents={socialEvents}
+          >
+            <CalendarCheckIn assessment={assessment} loading={loading} error={error} onAssess={handleAssess} onClear={handleClear} />
+          </CapacityGauge>
+          <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} calendarMode={Boolean(assessment)} />
+          <StressTracker mood={mood} setMood={setMood} history={history} />
+          <RecoveryZone onHideLowPriority={hideLowPriority} />
+        </div>
+
+        <WaveTransition ref={waveRef} />
       </div>
 
       <div className="scroll-dots">
