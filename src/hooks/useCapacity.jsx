@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { mockCapacityResponse } from '../data/mockCapacityResponse';
 
 // The backend sends its own theme_color (red/orange/green), but the app's
@@ -11,12 +11,47 @@ const STATUS_COLORS = {
   BALANCED: 'var(--seafoam)',
 };
 
-export function useCapacity() {
+export function useCapacity(currentMood = 35) {
   const [assessment, setAssessment] = useState(null);
-  const capacity = assessment?.capacity ?? mockCapacityResponse;
+  const rawCapacity = assessment?.capacity ?? mockCapacityResponse;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const abortCtrlRef = useRef(null);
+
+  // Dynamic mood modifier based on currentMood (0–100):
+  // - Energized / Stoked (<= 20): -10% strain
+  // - Calm / Steady (21–45): -5% strain
+  // - Neutral (46–65): 0%
+  // - Tired / Stressed (66–85): +10% strain
+  // - Burnout (> 85): +15% strain
+  const moodModifier =
+    currentMood <= 20
+      ? -10
+      : currentMood <= 45
+        ? -5
+        : currentMood <= 65
+          ? 0
+          : currentMood <= 85
+            ? 10
+            : 15;
+
+  const capacity = useMemo(() => {
+    if (!rawCapacity) return null;
+    const adjustedPercent = Math.max(
+      0,
+      Math.min(100, rawCapacity.total_capacity_percent + moodModifier)
+    );
+    let statusLevel = 'BALANCED';
+    if (adjustedPercent >= 80) statusLevel = 'CRITICAL_OVERLOAD';
+    else if (adjustedPercent >= 60) statusLevel = 'HEAVY_STRAIN';
+
+    return {
+      ...rawCapacity,
+      total_capacity_percent: adjustedPercent,
+      status_level: statusLevel,
+      mood_modifier: moodModifier,
+    };
+  }, [rawCapacity, moodModifier]);
 
   async function assessCalendar(payload) {
     abortCtrlRef.current?.abort();
@@ -70,5 +105,6 @@ export function useCapacity() {
     loading,
     error,
     statusColor: capacity ? STATUS_COLORS[capacity.status_level] ?? 'var(--ocean-mid)' : null,
+    moodModifier,
   };
 }

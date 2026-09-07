@@ -5,8 +5,8 @@ import path from 'node:path';
 import process from 'node:process';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const localPython = path.join(root, '.venv', process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python');
-const python = process.env.EQUILIBRIUM_PYTHON || (existsSync(localPython) ? localPython : 'python');
+const defaultPython = process.platform === 'win32' ? 'py' : 'python';
+const python = process.env.EQUILIBRIUM_PYTHON || (existsSync(localPython) ? localPython : defaultPython);
 const children = [];
 let stopping = false;
 function stop(code = 0) {

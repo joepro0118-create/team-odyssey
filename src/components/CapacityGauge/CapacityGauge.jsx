@@ -42,15 +42,20 @@ export default function CapacityGauge({
   const activeSleepLogs = calendarSchedule ? calendarSchedule.sleepLogs : sleepLogs.length > 0 ? sleepLogs : mockForecastSleepLogs;
   const activeSocialEvents = calendarSchedule ? calendarSchedule.socialEvents : socialEvents.length > 0 ? socialEvents : mockForecastSocialEvents;
 
+  const moodModifier = capacity?.mood_modifier;
   const forecast = useMemo(() => {
+    const configOverride = {
+      ...(calendarSchedule ? { baseDate: calendarSchedule.baseDate } : {}),
+      ...(moodModifier ? { baseline: 30 + moodModifier } : {}),
+    };
     return computeForecast(
       combinedTasks,
       activeSleepLogs,
       activeSocialEvents,
       calendarSchedule ? [] : mockForecastRecoveryBlocks,
-      calendarSchedule ? { baseDate: calendarSchedule.baseDate } : {}
+      configOverride
     );
-  }, [combinedTasks, activeSleepLogs, activeSocialEvents, calendarSchedule]);
+  }, [combinedTasks, activeSleepLogs, activeSocialEvents, calendarSchedule, moodModifier]);
 
   useEffect(() => {
     if (!capacity) return;
@@ -257,6 +262,12 @@ export default function CapacityGauge({
               🤝 Social {socialRelief >= 0 ? '+' : ''}
               {socialRelief}
             </span>
+            {capacity.mood_modifier !== undefined && capacity.mood_modifier !== 0 && (
+              <span className="modifier-chip">
+                🎭 Mood {capacity.mood_modifier > 0 ? '+' : ''}
+                {capacity.mood_modifier}%
+              </span>
+            )}
           </div>
 
           <HeartbeatCard bpm={bpm} />

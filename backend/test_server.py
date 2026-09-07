@@ -44,6 +44,20 @@ class AssessmentTests(unittest.TestCase):
         self.assertEqual(result['schedule']['socialEvents'], [])
         self.assertTrue(any('1 event definition' in w for w in result['warnings']))
 
+    def test_calendar_tasks_energy_classification(self):
+        raw = calendar(
+            'DTSTART:20260902T010000Z\r\nDTEND:20260902T013000Z\r\nSUMMARY:[STUDY] Quick reading sync',
+            'DTSTART:20260902T020000Z\r\nDTEND:20260902T040000Z\r\nSUMMARY:[STUDY] Physics Lecture',
+            'DTSTART;VALUE=DATE:20260902\r\nSUMMARY:[DEADLINE] Term Paper',
+        )
+        result = assess({'calendar_text': raw, 'sleep_hours': [8], 'pending_errands_count': 0}, now=DEMO_NOW)
+        tasks = result['schedule']['tasks']
+        self.assertEqual(len(tasks), 3)
+        task_by_text = {t['text']: t for t in tasks}
+        self.assertEqual(task_by_text['Quick reading sync']['energy'], 'low')
+        self.assertEqual(task_by_text['Physics Lecture']['energy'], 'high')
+        self.assertEqual(task_by_text['Term Paper']['energy'], 'high')
+
     def test_sleep_and_errands_change_score(self):
         base = {'demo': True, 'sleep_hours': [8], 'pending_errands_count': 0}
         rested = assess(base)['capacity']['total_capacity_percent']

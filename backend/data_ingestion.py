@@ -86,6 +86,66 @@ def classify_event(event) -> str | None:
     return None
 
 
+LOW_ENERGY_KEYWORDS = (
+    "break",
+    "lunch",
+    "walk",
+    "errand",
+    "sync",
+    "reading",
+    "coffee",
+    "chat",
+    "relax",
+    "stretch",
+    "nap",
+    "notes",
+)
+
+HIGH_ENERGY_KEYWORDS = (
+    "exam",
+    "midterm",
+    "final",
+    "quiz",
+    "lecture",
+    "lab",
+    "project",
+    "assignment",
+    "presentation",
+    "shift",
+    "work",
+    "meeting",
+)
+
+
+def classify_task_energy(
+    title: str,
+    hours: float = 1.0,
+    is_deadline: bool = False,
+) -> str:
+    """Classify an academic or work task as 'high' or 'low' energy.
+
+    - Deadlines are always 'high'.
+    - Low-energy keywords ("break", "lunch", "walk", "errand", "sync", "reading") -> 'low'.
+    - Short events (< 45 minutes, i.e. < 0.75h) -> 'low'.
+    - High-energy keywords ("lecture", "lab", "exam", etc.) or >= 60 mins -> 'high'.
+    - Fallback: 'low' if hours < 0.75 else 'high'.
+    """
+    if is_deadline:
+        return "high"
+
+    clean = title.lower()
+    if any(keyword in clean for keyword in LOW_ENERGY_KEYWORDS):
+        return "low"
+
+    if hours < 0.75:
+        return "low"
+
+    if any(keyword in clean for keyword in HIGH_ENERGY_KEYWORDS) or hours >= 1.0:
+        return "high"
+
+    return "low" if hours < 0.75 else "high"
+
+
 def _as_utc(value, *, all_day_deadline: bool = False) -> datetime:
     """Normalize an iCalendar date/datetime value to an aware UTC datetime."""
     if isinstance(value, datetime):

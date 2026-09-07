@@ -12,9 +12,9 @@ import { useTasks } from './hooks/useTasks';
 import { useMood } from './hooks/useMood';
 
 export default function App() {
-  const { capacity, assessment, loading, error, statusColor, assessCalendar, clearAssessment } = useCapacity();
+  const { mood, setMood, setMoodFromEmotion, history } = useMood();
+  const { capacity, assessment, loading, error, statusColor, assessCalendar, clearAssessment } = useCapacity(mood);
   const { tasks, toggleTask, rebalanceTask, hideLowPriority, replaceTasks, resetTasks } = useTasks();
-  const { mood, setMood, history } = useMood();
 
   async function handleAssess(payload) {
     const result = await assessCalendar(payload);
@@ -76,8 +76,15 @@ export default function App() {
     return () => canvas.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleUnlock = (detectedMood) => {
+    if (detectedMood) {
+      setMoodFromEmotion(detectedMood);
+    }
+    setUnlocked(true);
+  };
+
   if (!unlocked) {
-    return <LockScreen onContinue={() => setUnlocked(true)} />;
+    return <LockScreen onContinue={handleUnlock} />;
   }
 
   return (

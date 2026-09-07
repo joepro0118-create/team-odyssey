@@ -16,7 +16,20 @@ export default function MoodSlider({ mood, setMood }) {
   return (
     <div className="mood-card">
       <div className="mood-face">{step.emoji}</div>
-      <div className="mood-label">{step.label}</div>
+      <div className="mood-label">
+        {step.label}
+        <span style={{ display: 'block', fontSize: '11px', opacity: 0.8, marginTop: '2px', fontWeight: 600 }}>
+          {mood <= 20
+            ? 'Capacity bonus: -10% strain'
+            : mood <= 45
+              ? 'Capacity bonus: -5% strain'
+              : mood <= 65
+                ? 'Baseline strain'
+                : mood <= 85
+                  ? 'Elevated load: +10% strain'
+                  : 'Critical load: +15% strain'}
+        </span>
+      </div>
       <input
         type="range"
         min="0"

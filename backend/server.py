@@ -12,7 +12,7 @@ from icalendar import Calendar
 
 from data_ingestion import (
     MALAYSIA_TIMEZONE, MAX_ICS_BYTES, TAG_PATTERN, _deadline_time,
-    _event_interval, build_student_input, classify_event,
+    _event_interval, build_student_input, classify_event, classify_task_energy,
 )
 from engine import compute_capacity
 
@@ -109,7 +109,17 @@ def forecast_schedule(calendar, now):
                 if hours:
                     social.append({**item, "title": title, "durationHours": round(hours, 2)})
             else:
-                tasks.append({**item, "text": title, "energy": "high", "isDeadline": category == "DEADLINE", "done": False, "hidden": False, "moved": False})
+                is_deadline = category == "DEADLINE"
+                energy = classify_task_energy(title, hours, is_deadline)
+                tasks.append({
+                    **item,
+                    "text": title,
+                    "energy": energy,
+                    "isDeadline": is_deadline,
+                    "done": False,
+                    "hidden": False,
+                    "moved": False,
+                })
     return {"tasks": tasks, "socialEvents": social}
 
 

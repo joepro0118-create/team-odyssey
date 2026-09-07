@@ -10,6 +10,7 @@ from data_ingestion import (
     MALAYSIA_TIMEZONE,
     build_student_input,
     classify_event,
+    classify_task_energy,
     load_calendar,
     summarize_calendar,
 )
@@ -151,6 +152,33 @@ END:VCALENDAR\r
                 sleep_hours=[7],
                 now=REFERENCE_NOW,
             )
+
+
+class TestTaskEnergyClassification(unittest.TestCase):
+    def test_deadlines_are_always_high_energy(self):
+        self.assertEqual(classify_task_energy("Short Quiz", hours=0.25, is_deadline=True), "high")
+        self.assertEqual(classify_task_energy("Problem Set Due", hours=0.5, is_deadline=True), "high")
+
+    def test_short_events_under_45_minutes_are_low_energy(self):
+        self.assertEqual(classify_task_energy("Quick check-in", hours=0.5), "low")
+        self.assertEqual(classify_task_energy("Quick review", hours=0.4), "low")
+
+    def test_low_energy_keywords_are_low_energy(self):
+        for title in [
+            "Morning walk",
+            "Lunch break",
+            "Pick up errand from post office",
+            "Project sync with mentor",
+            "Required textbook reading",
+        ]:
+            with self.subTest(title=title):
+                self.assertEqual(classify_task_energy(title, hours=1.0), "low")
+
+    def test_long_blocks_and_heavy_academic_events_are_high_energy(self):
+        self.assertEqual(classify_task_energy("Algorithms Lecture", hours=2.0), "high")
+        self.assertEqual(classify_task_energy("Chemistry Lab", hours=1.5), "high")
+        self.assertEqual(classify_task_energy("Midterm Exam", hours=1.0), "high")
+        self.assertEqual(classify_task_energy("Cafe Shift", hours=5.0), "high")
 
 
 if __name__ == "__main__":
