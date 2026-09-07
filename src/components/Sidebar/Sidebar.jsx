@@ -1,4 +1,5 @@
 const NAV_ITEMS = [
+  { label: 'Calendar' },
   { label: 'Home' },
   { label: 'Tasks' },
   { label: 'Tracker' },
@@ -7,27 +8,34 @@ const NAV_ITEMS = [
 
 function NavIcon({ index }) {
   switch (index) {
-    case 0: // Home
+    case 0: // Calendar
+      return (
+        <svg viewBox="0 0 24 24">
+          <rect x="4" y="5" width="16" height="15" rx="2" />
+          <path d="M8 3v4M16 3v4M4 10h16" />
+        </svg>
+      );
+    case 1: // Home
       return (
         <svg viewBox="0 0 24 24">
           <path d="M3 11l9-7 9 7" />
           <path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9" />
         </svg>
       );
-    case 1: // Tasks
+    case 2: // Tasks
       return (
         <svg viewBox="0 0 24 24">
           <rect x="4" y="4" width="16" height="16" rx="3" />
           <path d="M8 10h8M8 14h5" />
         </svg>
       );
-    case 2: // Tracker
+    case 3: // Tracker
       return (
         <svg viewBox="0 0 24 24">
           <path d="M3 17l5-6 4 4 5-8 4 5" />
         </svg>
       );
-    case 3: // Recovery
+    case 4: // Recovery
       return (
         <svg viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9" />

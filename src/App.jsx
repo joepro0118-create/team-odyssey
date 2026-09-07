@@ -1,17 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
 import Sidebar from './components/Sidebar/Sidebar';
 import CapacityGauge from './components/CapacityGauge/CapacityGauge';
+import CalendarCheckIn from './components/CapacityGauge/CalendarCheckIn';
 import LoadBalancer from './components/LoadBalancer/LoadBalancer';
 import StressTracker from './components/StressTracker/StressTracker';
 import RecoveryZone from './components/RecoveryZone/RecoveryZone';
+import LockScreen from './components/LockScreen/LockScreen';
+import WaveTransition from './components/WaveTransition/WaveTransition';
 import { useCapacity } from './hooks/useCapacity';
 import { useTasks } from './hooks/useTasks';
 import { useMood } from './hooks/useMood';
 
 export default function App() {
-  const { capacity, loading, error, statusColor } = useCapacity();
-  const { tasks, toggleTask, rebalanceTask, hideLowPriority } = useTasks();
-  const { mood, setMood, history } = useMood();
+  const { mood, setMood, setMoodFromEmotion, history } = useMood();
+  const { capacity, assessment, loading, error, statusColor, assessCalendar, clearAssessment } = useCapacity(mood);
+  const { tasks, toggleTask, rebalanceTask, hideLowPriority, replaceTasks, resetTasks } = useTasks();
+
+  async function handleAssess(payload) {
+    const result = await assessCalendar(payload);
+    if (result) replaceTasks(result.schedule.tasks);
+    return result;
+  }
+
+  function handleClear() {
+    clearAssessment();
+    resetTasks();
+  }
 
   const [sleepLogs] = useState([
     { dayOffset: 0, hours: 6.5, targetHours: 8 },
@@ -29,15 +43,25 @@ export default function App() {
   ]);
 
   const canvasRef = useRef(null);
+  const waveRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [unlocked, setUnlocked] = useState(false);
 
   // Each direct child of .canvas is a <section className="column ...">
   // rendered by the four components below, in order.
-  const goTo = (index) => {
+  const scrollTo = (index) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const target = canvas.children[index];
     target?.scrollIntoView({ behavior: 'smooth', inline: 'start' });
+  };
+
+  // Plays the wave-splash + tide sound, then scrolls partway through the
+  // animation so the wave masks the jump between columns.
+  const goTo = (index) => {
+    if (index === activeIndex) return;
+    setActiveIndex(index);
+    waveRef.current?.play(() => scrollTo(index));
   };
 
   useEffect(() => {
@@ -53,27 +77,47 @@ export default function App() {
     return () => canvas.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleUnlock = (detectedMood) => {
+    if (detectedMood) {
+      setMoodFromEmotion(detectedMood);
+    }
+    setUnlocked(true);
+  };
+
+  if (!unlocked) {
+    return <LockScreen onContinue={handleUnlock} />;
+  }
+
   return (
     <div className="app">
       <Sidebar activeIndex={activeIndex} onNavigate={goTo} />
 
-      <div className="canvas" ref={canvasRef}>
-        <CapacityGauge
-          capacity={capacity}
-          statusColor={statusColor}
-          loading={loading}
-          error={error}
-          tasks={tasks}
-          sleepLogs={sleepLogs}
-          socialEvents={socialEvents}
-        />
-        <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} />
-        <StressTracker mood={mood} setMood={setMood} history={history} />
-        <RecoveryZone onHideLowPriority={hideLowPriority} />
+      <div className="canvas-wrap">
+        <div className="canvas" ref={canvasRef}>
+          <section className="column col-calendar">
+            <div className="col-eyebrow">Setup</div>
+            <h2 className="col-title">Your Calendar</h2>
+            <CalendarCheckIn assessment={assessment} loading={loading} error={error} onAssess={handleAssess} onClear={handleClear} />
+          </section>
+          <CapacityGauge
+            capacity={capacity}
+            statusColor={statusColor}
+            loading={loading}
+            calendarSchedule={assessment?.schedule}
+            tasks={tasks}
+            sleepLogs={sleepLogs}
+            socialEvents={socialEvents}
+          />
+          <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} calendarMode={Boolean(assessment)} />
+          <StressTracker mood={mood} setMood={setMood} history={history} />
+          <RecoveryZone onHideLowPriority={hideLowPriority} />
+        </div>
+
+        <WaveTransition ref={waveRef} />
       </div>
 
       <div className="scroll-dots">
-        {[0, 1, 2, 3].map((i) => (
+        {[0, 1, 2, 3, 4].map((i) => (
           <div
             key={i}
             className={`dot ${activeIndex === i ? 'active' : ''}`}
