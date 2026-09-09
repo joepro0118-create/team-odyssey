@@ -13,7 +13,7 @@ npm run dev
 ```
 
 Open http://127.0.0.1:5173. The command starts the local Python API on port
-8000 and Vite on 5173 together; Ctrl+C stops both. If these ports are occupied,
+8000, the FastAPI chat service on 8001, and Vite on 5173 together; Ctrl+C stops all three. If these ports are occupied,
 stop the previous instance first. The launcher uses `.venv` automatically;
 `EQUILIBRIUM_PYTHON` can specify another Python executable. On macOS/Linux,
 create the environment with `python3 -m venv .venv` and install with
@@ -57,6 +57,34 @@ npm run build
 ```
 
 See `backend/README.md` for the calendar ingestion command and data contracts.
+
+## Odyssey Guide chatbot
+
+The round chat button at the bottom right opens Odyssey Guide after the face
+screen. It can explain the current module and hold follow-up conversations.
+
+1. Install the updated `backend/requirements.txt` into `.venv` using the command above.
+2. Copy `.env.example` to `.env` in the repository root.
+3. Set `GEMINI_API_KEY` in that file to your Google AI Studio API key.
+   Keep `GEMINI_MODEL=gemini-3.8-flash`, or choose another available Interactions model.
+4. Run `npm run dev`, open the chat button, and send a message.
+
+The app works without a key, but the widget shows a setup notice instead of AI
+replies. Restart the dev command after changing `.env`. Never put the key in
+frontend code or a `VITE_` environment variable. `.env` is ignored by Git.
+
+With **Include this page** enabled, the active module's rendered text is sent to
+Google Gemini alongside your message. You can preview it or switch sharing off.
+Form values, raw .ics files, camera images and the chat panel are excluded.
+Rendered calendar task names and workload/mood information may be included.
+Turning sharing off does not remove context already sent earlier in a conversation;
+use **New chat** to start over. Closing the panel retains the conversation; refreshing
+starts a new one. Chats expire after 30 minutes idle or 20 successful replies.
+While Gemini is responding, use either **Stop response** control to cancel the
+provider request. Slow requests end automatically after 25 seconds.
+
+See [backend/CHATBOT.md](backend/CHATBOT.md) for the API contract, tests and local
+service limitations. FastAPI's interactive docs are at http://127.0.0.1:8001/docs.
 
 ## Original Vite template notes
 

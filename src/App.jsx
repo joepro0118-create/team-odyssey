@@ -7,6 +7,7 @@ import StressTracker from './components/StressTracker/StressTracker';
 import RecoveryZone from './components/RecoveryZone/RecoveryZone';
 import LockScreen from './components/LockScreen/LockScreen';
 import WaveTransition from './components/WaveTransition/WaveTransition';
+import ChatWidget from './components/ChatWidget/ChatWidget';
 import { useCapacity } from './hooks/useCapacity';
 import { useTasks } from './hooks/useTasks';
 import { useMood } from './hooks/useMood';
@@ -115,6 +116,8 @@ export default function App() {
 
         <WaveTransition ref={waveRef} />
       </div>
+
+      <ChatWidget activeIndex={activeIndex} source={assessment?.source === 'calendar' ? 'Imported calendar' : assessment ? 'Sample calendar assessment' : 'Sample preview'} />
 
       <div className="scroll-dots">
         {[0, 1, 2, 3, 4].map((i) => (

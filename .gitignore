@@ -29,3 +29,8 @@ __pycache__/
 *.pyo
 .venv/
 
+# Server-side credentials
+.env
+.env.*
+!.env.example
+
