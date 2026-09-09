@@ -1,15 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import BurnoutForecastChart from '../BurnoutForecast/BurnoutForecastChart';
-import FactorDrawer from '../BurnoutForecast/FactorDrawer';
-import HeartbeatCard from '../HeartbeatCard/HeartbeatCard';
-import { useHeartbeat } from '../../hooks/useHeartbeat';
-import { computeForecast } from '../../utils/forecastEngine';
-import {
-  mockForecastTasks,
-  mockForecastSleepLogs,
-  mockForecastSocialEvents,
-  mockForecastRecoveryBlocks,
-} from '../../data/mockForecastData';
+import { useEffect, useState } from 'react';
 
 const BAR_CONFIG = [
   { key: 'mental_points', label: 'Mental', max: 40 },
@@ -21,40 +10,8 @@ export default function CapacityGauge({
   capacity,
   statusColor,
   loading,
-  tasks = [],
-  sleepLogs = [],
-  socialEvents = [],
-  calendarSchedule,
 }) {
   const [animated, setAnimated] = useState(false);
-  const [activeTab, setActiveTab] = useState('today');
-  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
-  const { bpm } = useHeartbeat();
-
-  // Combine live tasks (today + rebalanced tomorrow) with the future schedule (days 2–6)
-  const combinedTasks = useMemo(() => {
-    if (calendarSchedule) return tasks;
-    const futureSchedule = mockForecastTasks.filter((t) => t.dayOffset >= 2);
-    return [...tasks, ...futureSchedule];
-  }, [tasks, calendarSchedule]);
-
-  const activeSleepLogs = calendarSchedule ? calendarSchedule.sleepLogs : sleepLogs.length > 0 ? sleepLogs : mockForecastSleepLogs;
-  const activeSocialEvents = calendarSchedule ? calendarSchedule.socialEvents : socialEvents.length > 0 ? socialEvents : mockForecastSocialEvents;
-
-  const moodModifier = capacity?.mood_modifier;
-  const forecast = useMemo(() => {
-    const configOverride = {
-      ...(calendarSchedule ? { baseDate: calendarSchedule.baseDate } : {}),
-      ...(moodModifier ? { baseline: 30 + moodModifier } : {}),
-    };
-    return computeForecast(
-      combinedTasks,
-      activeSleepLogs,
-      activeSocialEvents,
-      calendarSchedule ? [] : mockForecastRecoveryBlocks,
-      configOverride
-    );
-  }, [combinedTasks, activeSleepLogs, activeSocialEvents, calendarSchedule, moodModifier]);
 
   useEffect(() => {
     if (!capacity) return;
@@ -89,67 +46,10 @@ export default function CapacityGauge({
 
   return (
     <section className="column col1">
-      <div
-        className="col1-header"
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '22px',
-          gap: '12px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div>
-          <div className="col-eyebrow">{activeTab === 'today' ? 'Today' : 'Horizon'}</div>
-          <h2 className="col-title" style={{ margin: 0 }}>
-            {activeTab === 'today' ? 'Your capacity' : 'Burnout Forecast'}
-          </h2>
-        </div>
+      <div className="col-eyebrow">Today</div>
+      <h2 className="col-title">Your capacity</h2>
 
-        {/* Tab Toggle Pill */}
-        <div className="view-toggle-pill" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'today'}
-            className={`view-toggle-btn ${activeTab === 'today' ? 'active' : ''}`}
-            onClick={() => setActiveTab('today')}
-          >
-            Today
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'forecast'}
-            className={`view-toggle-btn ${activeTab === 'forecast' ? 'active' : ''}`}
-            onClick={() => setActiveTab('forecast')}
-          >
-            7-Day Forecast
-          </button>
-        </div>
-      </div>
-
-      {activeTab === 'forecast' ? (
-        <div className="forecast-view-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '640px' }}>
-          <p className="checkin-note">{calendarSchedule
-            ? 'Calendar-based scenario: your recent average sleep is assumed for each future night. Only tagged events are included; no recovery blocks are assumed. The forecast uses task counts and has a different formula from Today’s assessment.'
-            : 'Sample forecast — upload your calendar to explore your own schedule.'}</p>
-          <BurnoutForecastChart
-            forecast={forecast}
-            selectedDayIndex={selectedDayIndex}
-            onSelectDay={setSelectedDayIndex}
-          />
-          {selectedDayIndex !== null && forecast[selectedDayIndex] && (
-            <FactorDrawer
-              dayForecast={forecast[selectedDayIndex]}
-              onClose={() => setSelectedDayIndex(null)}
-            />
-          )}
-        </div>
-      ) : (
-        <>
-          <div className="gauge-wrap">
+      <div className="gauge-wrap">
             <div className="wave-track">
               <svg
                 viewBox="0 0 220 220"
@@ -267,10 +167,6 @@ export default function CapacityGauge({
               </span>
             )}
           </div>
-
-          <HeartbeatCard bpm={bpm} />
-        </>
-      )}
     </section>
   );
 }

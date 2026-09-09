@@ -1,41 +1,41 @@
 const NAV_ITEMS = [
-  { label: 'Calendar' },
   { label: 'Home' },
-  { label: 'Tasks' },
   { label: 'Tracker' },
+  { label: 'Calendar', hero: true },
+  { label: 'Tasks' },
   { label: 'Recovery' },
 ];
 
-function NavIcon({ index }) {
-  switch (index) {
-    case 0: // Calendar
-      return (
-        <svg viewBox="0 0 24 24">
-          <rect x="4" y="5" width="16" height="15" rx="2" />
-          <path d="M8 3v4M16 3v4M4 10h16" />
-        </svg>
-      );
-    case 1: // Home
+function NavIcon({ label }) {
+  switch (label) {
+    case 'Home':
       return (
         <svg viewBox="0 0 24 24">
           <path d="M3 11l9-7 9 7" />
           <path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9" />
         </svg>
       );
-    case 2: // Tasks
+    case 'Tracker':
+      return (
+        <svg viewBox="0 0 24 24">
+          <path d="M3 17l5-6 4 4 5-8 4 5" />
+        </svg>
+      );
+    case 'Calendar':
+      return (
+        <svg viewBox="0 0 24 24" className="hero-calendar-svg">
+          <rect x="3" y="4" width="18" height="17" rx="2.5" />
+          <path d="M8 2v4M16 2v4M3 9h18" />
+        </svg>
+      );
+    case 'Tasks':
       return (
         <svg viewBox="0 0 24 24">
           <rect x="4" y="4" width="16" height="16" rx="3" />
           <path d="M8 10h8M8 14h5" />
         </svg>
       );
-    case 3: // Tracker
-      return (
-        <svg viewBox="0 0 24 24">
-          <path d="M3 17l5-6 4 4 5-8 4 5" />
-        </svg>
-      );
-    case 4: // Recovery
+    case 'Recovery':
       return (
         <svg viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="9" />
@@ -50,41 +50,36 @@ function NavIcon({ index }) {
 
 export default function Sidebar({ activeIndex, onNavigate }) {
   return (
-    <div className="sidebar">
-      <div className="sidebar-top">
-        <svg className="logo-wave" viewBox="0 0 48 48" fill="none">
-          <path
-            d="M4 30c4-6 10-6 14 0s10 6 14 0 10-6 14 0"
-            stroke="#CFEEE1"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-          <path
-            d="M4 20c4-6 10-6 14 0s10 6 14 0 10-6 14 0"
-            stroke="#7FCFB6"
-            strokeWidth="3"
-            strokeLinecap="round"
-            opacity="0.6"
-          />
-        </svg>
+    <nav className="bottom-nav" role="tablist" aria-label="Main navigation">
+      {NAV_ITEMS.map((item, i) => {
+        const isActive = activeIndex === i;
+        const isHero = item.hero;
 
-        <nav className="nav-icons">
-          {NAV_ITEMS.map((item, i) => (
-            <button
-              key={item.label}
-              className={`nav-btn ${activeIndex === i ? 'active' : ''}`}
-              onClick={() => onNavigate(i)}
-            >
-              <div className="nav-btn-inner">
-                <NavIcon index={i} />
-                <span className="label">{item.label}</span>
+        return (
+          <button
+            key={item.label}
+            role="tab"
+            aria-selected={isActive}
+            className={`bottom-nav-btn${isHero ? ' bottom-nav-btn--hero' : ''}${isActive ? ' active' : ''}`}
+            onClick={() => onNavigate(i)}
+          >
+            {isHero ? (
+              <div className="hero-circle">
+                <NavIcon label={item.label} />
+                <span className="hero-calendar-day">
+                  {new Date().getDate()}
+                </span>
               </div>
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      <div className="profile-pic">JM</div>
-    </div>
+            ) : (
+              <div className="bottom-nav-btn-inner">
+                <NavIcon label={item.label} />
+                <span className="bottom-nav-label">{item.label}</span>
+                {isActive && <span className="active-dot" />}
+              </div>
+            )}
+          </button>
+        );
+      })}
+    </nav>
   );
 }
