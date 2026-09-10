@@ -85,7 +85,6 @@ provider request. Slow requests end automatically after 25 seconds.
 
 See [backend/CHATBOT.md](backend/CHATBOT.md) for the API contract, tests and local
 service limitations. FastAPI's interactive docs are at http://127.0.0.1:8001/docs.
-
 ## Original Vite template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

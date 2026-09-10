@@ -100,16 +100,17 @@ const WaveTransition = forwardRef(function WaveTransition(_, ref) {
   useImperativeHandle(ref, () => ({
     play(onMid) {
       const overlay = overlayRef.current;
-      const stage = overlay?.parentElement;
-      if (!overlay || !stage) {
+      if (!overlay) {
         onMid?.();
         return;
       }
 
-      const w = stage.clientWidth;
-      const h = stage.clientHeight;
-      const bandW = w * 0.5;
+      const w = window.innerWidth || overlay.clientWidth || 1920;
+      const h = window.innerHeight || overlay.clientHeight || 1080;
+      const bandW = w * 0.55;
       const farLeft = -w * 4;
+
+      overlay.style.display = 'block';
 
       overlay.setAttribute('viewBox', `0 0 ${w} ${h}`);
       overlay.innerHTML =
@@ -155,11 +156,12 @@ const WaveTransition = forwardRef(function WaveTransition(_, ref) {
       setTimeout(() => onMid?.(), 430);
       anim.onfinish = () => {
         overlay.innerHTML = '';
+        overlay.style.display = 'none';
       };
     },
   }));
 
-  return <svg ref={overlayRef} className="wave-overlay" preserveAspectRatio="none" />;
+  return <svg ref={overlayRef} className="wave-overlay" preserveAspectRatio="none" style={{ display: 'none' }} />;
 });
 
 export default WaveTransition;
