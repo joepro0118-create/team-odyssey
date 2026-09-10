@@ -18,8 +18,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from google import genai
-# Interactions uses its own error classes in the pinned google-genai 2.22 SDK.
-from google.genai._gaos.lib.compat_errors import APIConnectionError, APITimeoutError
+try:
+    from google.genai._gaos.lib.compat_errors import APIConnectionError, APITimeoutError
+except ModuleNotFoundError:
+    from google.genai.errors import APIError as APIConnectionError, APIError as APITimeoutError
 from pydantic import BaseModel, ConfigDict, Field
 
 load_dotenv(Path(__file__).resolve().parents[1] / '.env')
