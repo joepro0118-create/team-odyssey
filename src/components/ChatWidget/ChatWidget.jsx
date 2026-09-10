@@ -24,6 +24,7 @@ function readHistory() {
 
 export default function ChatWidget({ activeIndex, source }) {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
@@ -46,7 +47,7 @@ export default function ChatWidget({ activeIndex, source }) {
   useEffect(() => () => request.current?.controller.abort(), []);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || closing) return;
     const controller = new AbortController();
     fetch('/chat/health', { signal: controller.signal })
       .then(res => res.ok ? res.json() : Promise.reject())
@@ -54,10 +55,10 @@ export default function ChatWidget({ activeIndex, source }) {
       .catch(() => { if (!controller.signal.aborted) setConfigured(null); });
     inputRef.current?.focus();
     return () => controller.abort();
-  }, [open]);
+  }, [open, closing]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || closing) return;
     const canvas = document.querySelector('.canvas');
     let timer;
     const refresh = () => {
@@ -67,7 +68,7 @@ export default function ChatWidget({ activeIndex, source }) {
     refresh();
     canvas?.addEventListener('scroll', refresh, { passive: true });
     return () => { clearTimeout(timer); canvas?.removeEventListener('scroll', refresh); };
-  }, [open, activeIndex, source]);
+  }, [open, closing, activeIndex, source]);
 
   useEffect(() => {
     const log = logRef.current;
@@ -75,8 +76,15 @@ export default function ChatWidget({ activeIndex, source }) {
   }, [open, messages, loading, error, stopped]);
 
   function close() {
-    setOpen(false);
-    launcherRef.current?.focus();
+    setClosing(true);
+  }
+
+  function handleAnimationEnd(e) {
+    if (e.animationName === 'chatPanelExit') {
+      setOpen(false);
+      setClosing(false);
+      launcherRef.current?.focus();
+    }
   }
 
   function saveToHistory(question, answer) {
@@ -193,8 +201,15 @@ export default function ChatWidget({ activeIndex, source }) {
   return (
     <div className="odyssey-chat" data-chat-private>
       {open && (
-        <section id="odyssey-chat-panel" className="chat-panel" role="dialog" aria-label="Odyssey Guide" aria-modal="false"
-          onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); close(); } }}>
+        <section
+          id="odyssey-chat-panel"
+          className={`chat-panel ${closing ? 'chat-panel-closing' : 'chat-panel-opening'}`}
+          role="dialog"
+          aria-label="Odyssey Guide"
+          aria-modal="false"
+          onAnimationEnd={handleAnimationEnd}
+          onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); close(); } }}
+        >
           <header className="chat-header">
             <span className="chat-avatar"><ChatIcon /></span>
             <div><h2>Odyssey Guide</h2><p>A little guidance for your day</p></div>
@@ -261,8 +276,28 @@ export default function ChatWidget({ activeIndex, source }) {
           </>}
         </section>
       )}
-      <button type="button" ref={launcherRef} className="chat-launcher" aria-label={open ? 'Close Odyssey Guide' : 'Open Odyssey Guide'} aria-expanded={open} aria-controls="odyssey-chat-panel" onClick={() => open ? close() : setOpen(true)}>
-        {open ? <span aria-hidden="true">×</span> : <ChatIcon />}
+      <button
+        type="button"
+        ref={launcherRef}
+        className={`chat-launcher ${open && !closing ? 'is-open' : ''}`}
+        aria-label={open && !closing ? 'Close Odyssey Guide' : 'Open Odyssey Guide'}
+        aria-expanded={open && !closing}
+        aria-controls="odyssey-chat-panel"
+        onClick={() => {
+          if (open && !closing) {
+            close();
+          } else {
+            setClosing(false);
+            setOpen(true);
+          }
+        }}
+      >
+        <span className="launcher-icon launcher-icon-chat">
+          <ChatIcon />
+        </span>
+        <span className="launcher-icon launcher-icon-close" aria-hidden="true">
+          ✕
+        </span>
       </button>
     </div>
   );

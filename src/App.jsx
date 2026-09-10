@@ -100,12 +100,10 @@ export default function App() {
     });
   };
 
-  // Plays the wave-splash + tide sound, then scrolls partway through the
-  // animation so the wave masks the jump between columns.
   const goTo = (index) => {
     if (index === activeIndex) return;
     setActiveIndex(index);
-    waveRef.current?.play(() => scrollTo(index));
+    scrollTo(index);
   };
 
   useEffect(() => {

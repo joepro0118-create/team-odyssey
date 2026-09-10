@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import HeartbeatCard from '../HeartbeatCard/HeartbeatCard';
-import { useHeartbeat } from '../../hooks/useHeartbeat';
 
 const BAR_CONFIG = [
   { key: 'mental_points', label: 'Mental', max: 40 },
@@ -14,7 +12,6 @@ export default function CapacityGauge({
   loading,
 }) {
   const [animated, setAnimated] = useState(false);
-  const { bpm } = useHeartbeat();
 
   useEffect(() => {
     if (!capacity) return;
@@ -170,8 +167,6 @@ export default function CapacityGauge({
           </span>
         )}
       </div>
-
-      <HeartbeatCard bpm={bpm} />
     </section>
   );
 }
