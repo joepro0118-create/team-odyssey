@@ -262,6 +262,89 @@ def create_app(generator=generate_reply):
         with lock:
             sessions.pop(conversation_id, None)
 
+    class RecoverySpot(BaseModel):
+        model_config = ConfigDict(extra='forbid')
+        spotName: str = Field(max_length=200)
+        categoryTag: str = Field(max_length=200)
+        distance: str = Field(max_length=100)
+        walkTime: str = Field(max_length=100)
+        rating: str = Field(max_length=50)
+        vibeTags: list[str] = Field(default_factory=list)
+
+    class RecoveryRequest(BaseModel):
+        model_config = ConfigDict(extra='forbid')
+        category: str = Field(pattern=r'^(run|food|chill)$')
+        spots: list[RecoverySpot] = Field(min_length=1, max_length=20)
+
+    RECOVERY_SYSTEM_PROMPT = (
+        'You are the Odyssey Recovery Recommender. The user tapped a recovery intent button. '
+        'You will receive a category ("run", "food", or "chill") and a list of real, verified '
+        'candidate spots with their distances and ratings.\n\n'
+        'Your ONLY job:\n'
+        '1. Pick the single best spot from the candidates for recovery RIGHT NOW.\n'
+        '2. Write a 1-2 sentence aiRationale explaining why this specific spot helps recovery.\n\n'
+        'You must NOT invent spot names, addresses, ratings, or distances. Only pick from '
+        'the provided candidates.\n\n'
+        'Respond with ONLY valid JSON matching this exact schema, no markdown fences:\n'
+        '{"spotName":"...","aiRationale":"..."}\n'
+    )
+
+    @app.post('/api/recovery-recommend')
+    async def recovery_recommend(payload: RecoveryRequest):
+        key = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
+        if not key:
+            raise HTTPException(503, 'Recovery recommender is not configured. Add GEMINI_API_KEY to .env.')
+        spots_text = '\n'.join(
+            f'- {s.spotName} | {s.categoryTag} | {s.distance} ({s.walkTime}) | '
+            f'Rating: {s.rating} | Vibes: {", ".join(s.vibeTags)}'
+            for s in payload.spots
+        )
+        user_message = f'Category: {payload.category}\nCandidate spots:\n{spots_text}'
+        try:
+            client = genai.Client(api_key=key, http_options={'retry_options': {'attempts': 0}})
+            async with client.aio as async_client:
+                response = await async_client.models.generate_content(
+                    model=os.getenv('GEMINI_MODEL') or 'gemini-3.8-flash',
+                    contents=[
+                        {'role': 'user', 'parts': [{'text': user_message}]},
+                    ],
+                    config={
+                        'system_instruction': RECOVERY_SYSTEM_PROMPT,
+                        'max_output_tokens': 256,
+                        'temperature': 0.7,
+                    },
+                )
+            text = response.text.strip()
+            # Strip markdown fences if Gemini wraps them
+            if text.startswith('```'):
+                text = text.split('\n', 1)[-1].rsplit('```', 1)[0].strip()
+            result = json.loads(text)
+            spot_name = result.get('spotName', '')
+            rationale = result.get('aiRationale', '')
+            # Validate the pick is from the candidates
+            valid_names = {s.spotName for s in payload.spots}
+            if spot_name not in valid_names:
+                spot_name = payload.spots[0].spotName
+                rationale = rationale or 'The closest option for a quick recovery break.'
+            return {'spotName': spot_name, 'aiRationale': rationale}
+        except (json.JSONDecodeError, KeyError, TypeError):
+            # Fallback: pick the first (closest) spot
+            return {
+                'spotName': payload.spots[0].spotName,
+                'aiRationale': 'A great nearby spot for your recovery break.',
+            }
+        except (APITimeoutError, httpx.TimeoutException, TimeoutError):
+            raise HTTPException(504, 'The recommendation took too long. Please try again.') from None
+        except (APIConnectionError, httpx.TransportError):
+            raise HTTPException(503, 'Cannot connect to Gemini right now. Please try again shortly.') from None
+        except Exception as exc:
+            code = getattr(exc, 'status_code', None) or getattr(exc, 'code', None)
+            if code == 429:
+                raise HTTPException(429, 'Gemini usage limit reached. Please try again later.') from None
+            if code in (401, 403):
+                raise HTTPException(503, 'Gemini access is unavailable. Check the API key.') from None
+            raise HTTPException(502, 'Could not get a recommendation. Please retry.') from None
+
     return app
 
 

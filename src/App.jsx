@@ -151,7 +151,7 @@ export default function App() {
                 <CalendarCheckIn assessment={assessment} loading={loading} error={error} onAssess={handleAssess} onClear={handleClear} />
               </section>
               <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} calendarMode={Boolean(assessment)} />
-              <RecoveryZone onHideLowPriority={hideLowPriority} />
+              <RecoveryZone />
             </div>
           </div>
 

@@ -4,6 +4,6 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: { proxy: { '/api': 'http://127.0.0.1:8000', '/chat': 'http://127.0.0.1:8001' } },
-  preview: { proxy: { '/api': 'http://127.0.0.1:8000', '/chat': 'http://127.0.0.1:8001' } },
+  server: { proxy: { '/api/recovery-recommend': 'http://127.0.0.1:8001', '/api': 'http://127.0.0.1:8000', '/chat': 'http://127.0.0.1:8001' } },
+  preview: { proxy: { '/api/recovery-recommend': 'http://127.0.0.1:8001', '/api': 'http://127.0.0.1:8000', '/chat': 'http://127.0.0.1:8001' } },
 })
