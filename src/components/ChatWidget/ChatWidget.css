@@ -170,6 +170,7 @@
 .chat-toolbar button { border: 0; background: transparent; color: var(--ocean-mid); font-weight: 800; padding: 6px; }
 .chat-toolbar-actions { display: flex; align-items: center; gap: 5px; }
 .chat-toolbar button.is-active { border-radius: 8px; background: #e4f2ec; }
+.chat-log { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 18px; }
 .chat-history {
   display: flex;
   flex-direction: column;
