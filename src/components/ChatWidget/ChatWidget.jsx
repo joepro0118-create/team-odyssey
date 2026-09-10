@@ -14,9 +14,30 @@ function readHistory() {
   if (typeof window === 'undefined') return [];
   try {
     const saved = JSON.parse(window.localStorage.getItem(HISTORY_STORAGE_KEY) || '[]');
-    return Array.isArray(saved)
-      ? saved.filter(item => typeof item?.question === 'string' && typeof item?.answer === 'string').slice(0, HISTORY_LIMIT)
-      : [];
+    if (!Array.isArray(saved)) return [];
+    return saved
+      .map(item => {
+        const title = item.title || item.question || 'Untitled chat';
+        const messages = Array.isArray(item.messages) && item.messages.length > 0
+          ? item.messages
+          : (item.question && item.answer)
+            ? [
+                { id: 'u-1', role: 'user', text: item.question },
+                { id: 'a-1', role: 'assistant', text: item.answer },
+              ]
+            : item.question
+              ? [{ id: 'u-1', role: 'user', text: item.question }]
+              : [];
+        return {
+          id: item.id || crypto.randomUUID(),
+          title,
+          messages,
+          createdAt: item.createdAt || new Date().toISOString(),
+          conversationId: item.conversationId || null,
+        };
+      })
+      .filter(item => item.title && item.messages.length > 0)
+      .slice(0, HISTORY_LIMIT);
   } catch {
     return [];
   }
@@ -25,6 +46,7 @@ function readHistory() {
 export default function ChatWidget({ activeIndex, source }) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
@@ -87,17 +109,66 @@ export default function ChatWidget({ activeIndex, source }) {
     }
   }
 
-  function saveToHistory(question, answer) {
-    const entry = { id: crypto.randomUUID(), question, answer, createdAt: new Date().toISOString() };
+  function saveChatSession(chatId, title, updatedMessages, convId) {
     setHistory(previous => {
-      const updated = [entry, ...previous].slice(0, HISTORY_LIMIT);
+      const existingIndex = previous.findIndex(c => c.id === chatId);
+      const now = new Date().toISOString();
+      let updated;
+      if (existingIndex >= 0) {
+        const existing = previous[existingIndex];
+        const updatedItem = {
+          ...existing,
+          title: existing.title || title,
+          messages: updatedMessages,
+          conversationId: convId !== undefined ? convId : (existing.conversationId || null),
+          updatedAt: now,
+        };
+        updated = [updatedItem, ...previous.filter((_, i) => i !== existingIndex)].slice(0, HISTORY_LIMIT);
+      } else {
+        const newItem = {
+          id: chatId,
+          title: title || 'New chat',
+          messages: updatedMessages,
+          conversationId: convId || null,
+          createdAt: now,
+          updatedAt: now,
+        };
+        updated = [newItem, ...previous].slice(0, HISTORY_LIMIT);
+      }
       try {
         window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
       } catch {
-        // The current chat still works if browser storage is unavailable.
+        // Fallback if browser storage is unavailable
       }
       return updated;
     });
+  }
+
+  function loadChat(item) {
+    if (loading) return;
+    setCurrentChatId(item.id);
+    setMessages(item.messages || []);
+    conversation.current = item.conversationId || null;
+    setError(null);
+    setStopped(false);
+    setShowHistory(false);
+    inputRef.current?.focus();
+  }
+
+  function deleteChat(e, chatId) {
+    e.stopPropagation();
+    setHistory(previous => {
+      const updated = previous.filter(item => item.id !== chatId);
+      try {
+        window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
+      } catch {
+        // storage fallback
+      }
+      return updated;
+    });
+    if (currentChatId === chatId) {
+      newChat();
+    }
   }
 
   async function send(text) {
@@ -114,22 +185,45 @@ export default function ChatWidget({ activeIndex, source }) {
     setStopped(false);
     setShowHistory(false);
     setDraft('');
+
+    const chatId = currentChatId || crypto.randomUUID();
+    if (!currentChatId) {
+      setCurrentChatId(chatId);
+    }
+    const existing = history.find(c => c.id === chatId);
+    const chatTitle = existing?.title || text.split('\n')[0].trim() || text;
+
     const messageId = pendingMessageId.current || crypto.randomUUID();
     pendingMessageId.current = messageId;
-    setMessages(prev => prev.some(message => message.id === messageId)
-      ? prev.map(message => message.id === messageId ? { ...message, text } : message)
-      : [...prev, { id: messageId, role: 'user', text }]);
+    const userMsg = { id: messageId, role: 'user', text };
+    const newMessagesWithUser = messages.some(message => message.id === messageId)
+      ? messages.map(message => message.id === messageId ? userMsg : message)
+      : [...messages, userMsg];
+    setMessages(newMessagesWithUser);
+    saveChatSession(chatId, chatTitle, newMessagesWithUser, conversation.current);
+
     // The backend stops Gemini after 25 seconds; this is only a final network fallback.
     const timeout = setTimeout(() => controller.abort(), 35000);
     try {
       // A retry must wait until the previous provider task releases its session.
       await cancellation.current;
       if (activeRequest.stopped || request.current !== activeRequest) return;
-      const res = await fetch('/chat', {
+      let res = await fetch('/chat', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, page_context: scanned, conversation_id: conversation.current, request_id: activeRequest.id }),
         signal: controller.signal,
       });
+
+      // If previous session expired on the backend (410), seamlessly create a fresh session
+      if (res.status === 410) {
+        conversation.current = null;
+        res = await fetch('/chat', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, page_context: scanned, conversation_id: null, request_id: activeRequest.id }),
+          signal: controller.signal,
+        });
+      }
+
       if (!res.headers.get('content-type')?.includes('application/json')) {
         throw new Error('Cannot reach Odyssey Guide. Start all services with npm run dev and retry.');
       }
@@ -141,8 +235,9 @@ export default function ChatWidget({ activeIndex, source }) {
       }
       conversation.current = data.conversation_id;
       pendingMessageId.current = null;
-      setMessages(prev => [...prev, { role: 'assistant', text: data.reply }]);
-      saveToHistory(text, data.reply);
+      const finalMessages = [...newMessagesWithUser, { role: 'assistant', text: data.reply }];
+      setMessages(finalMessages);
+      saveChatSession(chatId, chatTitle, finalMessages, data.conversation_id);
     } catch (err) {
       if (!activeRequest.stopped && request.current === activeRequest) {
         setError(err.name === 'AbortError' ? 'The reply took too long. Please retry.'
@@ -186,6 +281,7 @@ export default function ChatWidget({ activeIndex, source }) {
     if (loading) return;
     const previous = conversation.current;
     conversation.current = null;
+    setCurrentChatId(null);
     setMessages([]);
     setError(null);
     setStopped(false);
@@ -224,14 +320,63 @@ export default function ChatWidget({ activeIndex, source }) {
             </div>
           </div>
           <div className="chat-log" ref={logRef} role="log" aria-live="polite" aria-relevant="additions" tabIndex={0} aria-label="Conversation">
-            {showHistory ? <div className="chat-history">
-              <h3>Chat history</h3>
-              {!history.length ? <p className="chat-history-empty">No history</p> : history.map(item => <article key={item.id} className="chat-history-item">
-                <time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</time>
-                <strong>{item.question}</strong>
-                <p>{item.answer}</p>
-              </article>)}
-            </div> : <>
+            {showHistory ? (
+              <div className="chat-history">
+                <div className="chat-history-header">
+                  <h3>Chat history</h3>
+                  <button
+                    type="button"
+                    className="chat-history-new-btn"
+                    onClick={newChat}
+                    disabled={loading}
+                  >
+                    + New chat
+                  </button>
+                </div>
+                {!history.length ? (
+                  <div className="chat-history-empty">
+                    <p>No chat history yet</p>
+                    <span>Start a conversation to see it saved here.</span>
+                  </div>
+                ) : (
+                  <div className="chat-history-list" role="list">
+                    {history.map(item => (
+                      <div
+                        key={item.id}
+                        role="button"
+                        tabIndex={0}
+                        className={`chat-history-card ${currentChatId === item.id ? 'is-active-chat' : ''}`}
+                        onClick={() => loadChat(item)}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadChat(item); } }}
+                      >
+                        <div className="chat-history-card-body">
+                          <span className="chat-history-title" title={item.title}>
+                            {item.title}
+                          </span>
+                          <time dateTime={item.createdAt}>
+                            {new Date(item.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}, {new Date(item.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
+                          </time>
+                        </div>
+                        <div className="chat-history-card-actions">
+                          <button
+                            type="button"
+                            className="chat-history-delete-btn"
+                            aria-label="Delete chat"
+                            title="Delete chat"
+                            onClick={(e) => deleteChat(e, item.id)}
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </button>
+                          <span className="chat-history-arrow" aria-hidden="true">→</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : <>
               {!messages.length && <div className="chat-welcome">
                 <span className="chat-welcome-mark"><ChatIcon /></span>
                 <h3>Find your next small step.</h3>
