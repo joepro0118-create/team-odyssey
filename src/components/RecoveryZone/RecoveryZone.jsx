@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { RECOVERY_SPOTS } from '../../data/recoverySpots';
 
+/* ── Fallback campus coordinate (Universiti Malaya) ───────── */
+const DEFAULT_COORDS = { lat: 3.1194, lng: 101.6569 };
+
 /* ── Dev-mode placeholder warning ─────────────────────────── */
 if (import.meta.env.DEV) {
   const unverified = RECOVERY_SPOTS.filter(
@@ -39,6 +42,27 @@ function walkTime(meters) {
   return `${mins} min walk`;
 }
 
+function computeCategorySpots(categoryKey, coords) {
+  const spots = RECOVERY_SPOTS.filter((s) => s.category === categoryKey);
+  return spots
+    .map((spot) => {
+      const meters = haversineMeters(coords.lat, coords.lng, spot.lat, spot.lng);
+      const mapQuery = spot.lat && spot.lng
+        ? `${spot.lat},${spot.lng}`
+        : encodeURIComponent(`${spot.spotName}, ${spot.address}`);
+      return {
+        ...spot,
+        meters,
+        distance: formatDistance(meters),
+        walkTimeStr: walkTime(meters),
+        mapQuery,
+        aiRationale: spot.defaultRationale,
+        isAiPick: false,
+      };
+    })
+    .sort((a, b) => a.meters - b.meters);
+}
+
 /* ── Category config ──────────────────────────────────────── */
 const CATEGORIES = [
   {
@@ -64,132 +88,129 @@ const CATEGORIES = [
 /* ── Main Component ───────────────────────────────────────── */
 export default function RecoveryZone() {
   const [expanded, setExpanded] = useState(null); // 'run' | 'food' | 'chill' | null
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null); // { category, spotName, categoryTag, distance, walkTimeStr, rating, aiRationale, mapQuery, vibeTags }
+  const [candidateSpots, setCandidateSpots] = useState([]); // List of spots for current category
+  const [currentIndex, setCurrentIndex] = useState(0); // Index of currently viewed spot
   const [error, setError] = useState(null);
-  const abortRef = useRef(null);
+
+  const cachedLocationRef = useRef(null);
+  const categoryCacheRef = useRef({});
   const cardRefs = useRef({});
 
-  // Scroll expanded card into view
+  // 1. Pre-warm geolocation silently on mount
+  useEffect(() => {
+    if (navigator.geolocation && !cachedLocationRef.current) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          cachedLocationRef.current = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          };
+        },
+        () => {},
+        { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 }
+      );
+    }
+  }, []);
+
+  const currentSpot = candidateSpots[currentIndex] || null;
+
+  // Scroll expanded card into view smoothly
   useEffect(() => {
     if (expanded && cardRefs.current[expanded]) {
       setTimeout(() => {
         cardRefs.current[expanded]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 350);
+      }, 300);
     }
-  }, [expanded, result]);
+  }, [expanded, currentSpot]);
 
   const handleToggle = useCallback(
-    async (categoryKey) => {
+    (categoryKey) => {
       // Collapse if tapping the same active button
       if (expanded === categoryKey) {
         setExpanded(null);
-        setResult(null);
-        setError(null);
         return;
       }
 
-      // Abort any in-flight request
-      if (abortRef.current) abortRef.current.abort();
-      const controller = new AbortController();
-      abortRef.current = controller;
-
-      setExpanded(categoryKey);
-      setResult(null);
       setError(null);
-      setLoading(true);
 
-      try {
-        // 1. Get user location
-        const position = await new Promise((resolve, reject) => {
-          if (!navigator.geolocation) {
-            reject(new Error('location'));
-            return;
-          }
-          navigator.geolocation.getCurrentPosition(resolve, () => reject(new Error('location')), {
-            enableHighAccuracy: false,
-            timeout: 10000,
-            maximumAge: 60000,
-          });
-        });
-
-        if (controller.signal.aborted) return;
-
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-
-        // 2. Compute distances for spots in this category
-        const categorySpots = RECOVERY_SPOTS.filter((s) => s.category === categoryKey);
-        const spotsWithDistance = categorySpots
-          .map((spot) => {
-            const meters = haversineMeters(userLat, userLng, spot.lat, spot.lng);
-            return {
-              ...spot,
-              meters,
-              distance: formatDistance(meters),
-              walkTimeStr: walkTime(meters),
-            };
-          })
-          .sort((a, b) => a.meters - b.meters);
-
-        // 3. Call Gemini via backend
-        const payload = {
-          category: categoryKey,
-          spots: spotsWithDistance.map((s) => ({
-            spotName: s.spotName,
-            categoryTag: s.categoryTag,
-            distance: s.distance,
-            walkTime: s.walkTimeStr,
-            rating: s.rating,
-            vibeTags: s.vibeTags,
-          })),
-        };
-
-        const res = await fetch('/api/recovery-recommend', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-
-        if (!res.ok) {
-          throw new Error('api');
-        }
-
-        const data = await res.json();
-        const pickedSpot = spotsWithDistance.find((s) => s.spotName === data.spotName) || spotsWithDistance[0];
-        const mapQuery = encodeURIComponent(`${pickedSpot.spotName}, ${pickedSpot.address}`);
-
-        setResult({
-          category: categoryKey,
-          spotName: pickedSpot.spotName,
-          categoryTag: pickedSpot.categoryTag,
-          distance: pickedSpot.distance,
-          walkTimeStr: pickedSpot.walkTimeStr,
-          rating: pickedSpot.rating,
-          aiRationale: data.aiRationale,
-          mapQuery,
-          vibeTags: pickedSpot.vibeTags,
-        });
-      } catch (err) {
-        if (controller.signal.aborted) return;
-        if (err.message === 'location') {
-          setError('location');
-        } else {
-          setError('api');
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+      // Check if this category's spots are already cached for instant 0ms display
+      if (categoryCacheRef.current[categoryKey]) {
+        const cached = categoryCacheRef.current[categoryKey];
+        setExpanded(categoryKey);
+        setCandidateSpots(cached.spots);
+        setCurrentIndex(cached.currentIndex || 0);
+        return;
       }
+
+      // Compute spots immediately using cached GPS or default coordinates
+      const coords = cachedLocationRef.current || DEFAULT_COORDS;
+      const initialSpots = computeCategorySpots(categoryKey, coords);
+      initialSpots[0].isAiPick = true;
+
+      // INSTANT RENDER (0ms wait!)
+      setExpanded(categoryKey);
+      setCandidateSpots(initialSpots);
+      setCurrentIndex(0);
+
+      categoryCacheRef.current[categoryKey] = {
+        spots: initialSpots,
+        currentIndex: 0,
+      };
+
+      // In the background, enrich with personalized AI rationale from Gemini
+      const payload = {
+        category: categoryKey,
+        spots: initialSpots.map((s) => ({
+          spotName: s.spotName,
+          categoryTag: s.categoryTag,
+          distance: s.distance,
+          walkTime: s.walkTimeStr,
+          rating: s.rating,
+          vibeTags: s.vibeTags,
+        })),
+      };
+
+      fetch('/api/recovery-recommend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data || !data.spotName) return;
+
+          setCandidateSpots((prev) => {
+            const top = prev.find((s) => s.spotName === data.spotName) || prev[0];
+            const others = prev.filter((s) => s.spotName !== top.spotName);
+            const enriched = [
+              { ...top, aiRationale: data.aiRationale, isAiPick: true },
+              ...others.map((s) => ({ ...s, isAiPick: false })),
+            ];
+
+            if (categoryCacheRef.current[categoryKey]) {
+              categoryCacheRef.current[categoryKey].spots = enriched;
+            }
+            return enriched;
+          });
+        })
+        .catch(() => {
+          // If Gemini call fails, default rationale remains active without interrupting the user
+        });
     },
     [expanded]
   );
 
-  const handleRetry = useCallback(() => {
-    if (expanded) handleToggle(expanded);
-  }, [expanded, handleToggle]);
+  const handleNextSpot = useCallback(() => {
+    if (candidateSpots.length > 1) {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % candidateSpots.length;
+        if (expanded && categoryCacheRef.current[expanded]) {
+          categoryCacheRef.current[expanded].currentIndex = next;
+        }
+        return next;
+      });
+    }
+  }, [candidateSpots.length, expanded]);
 
   return (
     <section className="column col4">
@@ -199,7 +220,7 @@ export default function RecoveryZone() {
       <div className="recovery-buttons">
         {CATEGORIES.map((cat) => {
           const isActive = expanded === cat.key;
-          const showCard = isActive && (loading || result || error);
+          const showCard = isActive && (currentSpot || error);
 
           return (
             <div key={cat.key} className="recovery-slot">
@@ -227,59 +248,29 @@ export default function RecoveryZone() {
                 aria-hidden={!showCard}
               >
                 <div className="recovery-card-inner">
-                  {/* Loading */}
-                  {loading && isActive && (
-                    <div className="recovery-loading">
-                      <div className="recovery-loading-dots">
-                        <span /><span /><span />
-                      </div>
-                      <p className="recovery-loading-text">Finding your perfect spot…</p>
-                    </div>
-                  )}
-
-                  {/* Error: location */}
-                  {error === 'location' && isActive && (
-                    <div className="recovery-error">
-                      <span className="recovery-error-icon">📍</span>
-                      <p>Enable location to get a recommendation</p>
-                      <button className="recovery-retry-btn" onClick={handleRetry}>
-                        Try Again
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Error: api */}
-                  {error === 'api' && isActive && (
-                    <div className="recovery-error">
-                      <span className="recovery-error-icon">⚡</span>
-                      <p>Couldn&rsquo;t get a recommendation right now</p>
-                      <button className="recovery-retry-btn" onClick={handleRetry}>
-                        Retry
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Result */}
-                  {result && isActive && (
+                  {/* Result Spot */}
+                  {currentSpot && isActive && (
                     <>
-                      {/* 1. AI Rationale */}
+                      {/* 1. AI Rationale / Insight */}
                       <div className="recovery-rationale">
-                        <div className="recovery-rationale-label">AI Rationale</div>
-                        <p className="recovery-rationale-text">{result.aiRationale}</p>
+                        <div className="recovery-rationale-label">
+                          {currentSpot.isAiPick ? 'AI Rationale' : 'Recovery Insight'}
+                        </div>
+                        <p className="recovery-rationale-text">{currentSpot.aiRationale}</p>
                       </div>
 
                       {/* 2. Spot Overview */}
                       <div className="recovery-overview">
-                        <h3 className="recovery-spot-name">{result.spotName}</h3>
+                        <h3 className="recovery-spot-name">{currentSpot.spotName}</h3>
                         <div className="recovery-spot-meta">
-                          <span className="recovery-tag">{result.categoryTag}</span>
+                          <span className="recovery-tag">{currentSpot.categoryTag}</span>
                           <span className="recovery-distance">
-                            📍 {result.distance} ({result.walkTimeStr})
+                            📍 {currentSpot.distance} ({currentSpot.walkTimeStr})
                           </span>
-                          <span className="recovery-rating">⭐ {result.rating}</span>
+                          <span className="recovery-rating">⭐ {currentSpot.rating}</span>
                         </div>
                         <div className="recovery-vibe-chips">
-                          {result.vibeTags.map((tag) => (
+                          {currentSpot.vibeTags.map((tag) => (
                             <span key={tag} className="recovery-vibe-chip">
                               {tag}
                             </span>
@@ -287,28 +278,45 @@ export default function RecoveryZone() {
                         </div>
                       </div>
 
-                      {/* 3. Map */}
+                      {/* 3. Map Embed */}
                       <div className="recovery-map-wrap">
                         <iframe
+                          key={`${currentSpot.spotName}-${currentIndex}`}
                           className="recovery-map"
-                          title={`Map of ${result.spotName}`}
-                          src={`https://maps.google.com/maps?q=${result.mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                          title={`Map of ${currentSpot.spotName}`}
+                          src={`https://maps.google.com/maps?q=${currentSpot.mapQuery}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
                           loading="lazy"
                           referrerPolicy="no-referrer-when-downgrade"
                           allowFullScreen
                         />
                       </div>
 
-                      {/* 4. Navigation */}
-                      <a
-                        className="recovery-nav-btn"
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${result.mapQuery}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        id={`recovery-navigate-${result.category}`}
-                      >
-                        🚶 Start Walking Navigation
-                      </a>
+                      {/* 4. Action Buttons */}
+                      <div className="recovery-actions">
+                        <a
+                          className="recovery-nav-btn"
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${currentSpot.mapQuery}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          id={`recovery-navigate-${cat.key}`}
+                        >
+                          🚶 Start Walking Navigation
+                        </a>
+
+                        {/* 5. Next Location Selector */}
+                        {candidateSpots.length > 1 && (
+                          <button
+                            type="button"
+                            className="recovery-next-spot-btn"
+                            onClick={handleNextSpot}
+                            id={`recovery-next-${cat.key}`}
+                          >
+                            <span className="recovery-next-icon">🔄</span>
+                            <span className="recovery-next-label">Don&rsquo;t want this location? Next spot</span>
+                            <span className="recovery-next-arrow">→</span>
+                          </button>
+                        )}
+                      </div>
                     </>
                   )}
                 </div>

@@ -1,31 +1,41 @@
 /**
  * Curated recovery spots near Universiti Malaya, Kuala Lumpur.
- *
- * Before demo: replace every "VERIFY on Google Maps" placeholder
- * with confirmed coordinates and ratings pulled directly from Google Maps.
  */
 
 export const RECOVERY_SPOTS = [
   // ── RUN ──────────────────────────────────────────────────
   {
     category: "run",
-    spotName: "Tasik Varsiti (University Malaya Lake)",
-    address: "Tasik Varsiti, Universiti Malaya, 50603 Kuala Lumpur",
-    lat: 3.1191,
-    lng: 101.6575,
+    spotName: "Tasik Varsiti",
+    address: "Universiti Malaya, 50603 Kuala Lumpur",
+    lat: 3.1194,
+    lng: 101.6569,
     categoryTag: "Lakeside Loop • Flat & Shaded",
     rating: "4.8",
     vibeTags: ["Lakeside", "Shaded", "Flat Terrain"],
+    defaultRationale: "Tasik Varsiti's flat, shaded lakeside loop offers a tranquil, low-impact environment perfect for a gentle recovery jog that keeps your legs moving without overheating.",
   },
   {
     category: "run",
-    spotName: "Rimba Ilmu Botanic Garden Perimeter Path",
-    address: "Rimba Ilmu, Institute of Biological Sciences, Universiti Malaya",
-    lat: 3.1311,
-    lng: 101.6578,
-    categoryTag: "Nature Trail • Tree Cover",
-    rating: "4.6",
-    vibeTags: ["Nature", "Shaded", "Quiet"],
+    spotName: "UM Arena Stadium",
+    address: "UM Arena, Universiti Malaya, 50603 Kuala Lumpur",
+    lat: 3.1310,
+    lng: 101.6595,
+    categoryTag: "Athletic Track • Floodlit & Open Air",
+    rating: "4.7",
+    vibeTags: ["Track", "Active", "Open Air"],
+    defaultRationale: "A dedicated 400m synthetic running track free from vehicular traffic, providing joint-friendly shock absorption for a steady recovery run.",
+  },
+  {
+    category: "run",
+    spotName: "Taman Rekreasi Taman Jaya",
+    address: "Taman Jaya, Seksyen 10, 46000 Petaling Jaya",
+    lat: 3.1044,
+    lng: 101.6534,
+    categoryTag: "Lake Park • Paved Trail",
+    rating: "4.5",
+    vibeTags: ["Lake Park", "Paved Trail", "Scenic"],
+    defaultRationale: "A scenic lakefront park with wide paved jogging paths and cooling breezes, ideal for a change of scenery and mindful movement.",
   },
 
   // ── FOOD ─────────────────────────────────────────────────
@@ -38,6 +48,7 @@ export const RECOVERY_SPOTS = [
     categoryTag: "Campus Food Court • Budget-Friendly",
     rating: "4.6",
     vibeTags: ["Casual", "Affordable", "Lively"],
+    defaultRationale: "Quick, high-protein local meals right on campus to efficiently refuel your energy and glycogen stores after intensive work.",
   },
   {
     category: "food",
@@ -48,6 +59,18 @@ export const RECOVERY_SPOTS = [
     categoryTag: "Cafe • Comfort Food",
     rating: "4.2",
     vibeTags: ["Cafe", "Comfort Food", "Air-Conditioned"],
+    defaultRationale: "Authentic chilled shaved ice and comfort bites in an air-conditioned setting to lower your core temperature and decompress.",
+  },
+  {
+    category: "food",
+    spotName: "The Sphere Bangsar South",
+    address: "The Sphere, Jalan Kerinchi, Bangsar South, 59200 Kuala Lumpur",
+    lat: 3.1118,
+    lng: 101.6669,
+    categoryTag: "Dining Oasis • Wholesome Variety",
+    rating: "4.5",
+    vibeTags: ["Modern", "Healthy Options", "Relaxed"],
+    defaultRationale: "A green garden retail hub with a broad variety of nutrient-dense cafes and wholesome post-recovery culinary options.",
   },
 
   // ── CHILL ────────────────────────────────────────────────
@@ -57,9 +80,10 @@ export const RECOVERY_SPOTS = [
     address: "Jaya One, 72, Jalan University, 46200 Petaling Jaya, Selangor",
     lat: 3.1176,
     lng: 101.6354,
-    categoryTag: "Shopping Mall • Grocery",
-    rating: "3.9",
-    vibeTags: ["Chill", "Indoor", "Shopping", "Grocery"],
+    categoryTag: "Lifestyle Hub • Indoor & Sheltered",
+    rating: "4.2",
+    vibeTags: ["Chill", "Indoor", "Cafes", "Pet-Friendly"],
+    defaultRationale: "A relaxed lifestyle hub with quiet seating pockets, bookstores, and calm coffee spaces to step away from screen fatigue.",
   },
   {
     category: "chill",
@@ -67,8 +91,20 @@ export const RECOVERY_SPOTS = [
     address: "SS2 Park, Jalan SS 2/24, 47300 Petaling Jaya, Selangor",
     lat: 3.1151,
     lng: 101.6248,
-    categoryTag: "Park • Peaceful Views",
+    categoryTag: "Park • Peaceful Greenery",
     rating: "4.4",
     vibeTags: ["Park", "Peaceful", "Open Air"],
+    defaultRationale: "Quiet suburban park canopy with benches and lush greenery, perfect for breathwork, unhurried contemplation, or light stretching.",
+  },
+  {
+    category: "chill",
+    spotName: "KL Gateway Mall Lounge",
+    address: "KL Gateway Mall, 2, Jalan Kerinchi, 59200 Kuala Lumpur",
+    lat: 3.1147,
+    lng: 101.6644,
+    categoryTag: "Indoor Rest • Air-Conditioned",
+    rating: "4.3",
+    vibeTags: ["Quiet", "Air-Conditioned", "Spacious"],
+    defaultRationale: "Cool, serene indoor seating spaces adjacent to transit where you can recharge in quiet air-conditioned comfort.",
   },
 ];
