@@ -74,8 +74,12 @@ export function useCapacity(currentMood = 35) {
       if (!json.capacity?.breakdown || !json.input || !json.schedule) {
         throw new Error('Calendar service returned an incomplete result. Please retry.');
       }
-      setAssessment(json);
-      return json;
+      const assessmentResult = {
+        ...json,
+        as_of: new Date().toISOString(),
+      };
+      setAssessment(assessmentResult);
+      return assessmentResult;
     } catch (err) {
       if (ctrl.signal.aborted) return null;
       setError(err.name === 'TimeoutError'

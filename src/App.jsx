@@ -85,7 +85,6 @@ export default function App() {
   const moodModifier = capacity?.mood_modifier;
   const forecast = useMemo(() => {
     const configOverride = {
-      ...(assessment?.schedule ? { baseDate: assessment.schedule.baseDate } : {}),
       ...(moodModifier ? { baseline: 30 + moodModifier } : {}),
     };
     return computeForecast(
