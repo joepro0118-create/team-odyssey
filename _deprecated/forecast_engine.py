@@ -1,3 +1,4 @@
+# Unused — no callers as of 2026-09-11, moved during cleanup audit
 """
 Equilibrium — Burnout & Capacity Forecast Engine (Python Edition)
 =================================================================

@@ -1,3 +1,4 @@
+// Unused — duplicate of src/utils/forecastEngine.js, moved during cleanup audit
 /**
  * Equilibrium — Burnout & Capacity Forecast Engine (Backend Edition)
  * =================================================================
