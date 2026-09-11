@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { scanPageContext } from '../../utils/pageContext';
+import ModalBackdrop from '../ModalBackdrop/ModalBackdrop';
 import './ChatWidget.css';
 
 function ChatIcon() {
@@ -43,7 +44,7 @@ function readHistory() {
   }
 }
 
-export default function ChatWidget({ activeIndex, source }) {
+export default function ChatWidget({ activeIndex, source, forceClose = 0, onOpenChange }) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [currentChatId, setCurrentChatId] = useState(null);
@@ -100,6 +101,18 @@ export default function ChatWidget({ activeIndex, source }) {
   function close() {
     setClosing(true);
   }
+
+  const [prevForceClose, setPrevForceClose] = useState(forceClose);
+  if (forceClose !== prevForceClose) {
+    setPrevForceClose(forceClose);
+    if (open && !closing) {
+      setClosing(true);
+    }
+  }
+
+  useEffect(() => {
+    onOpenChange?.(open && !closing);
+  }, [open, closing, onOpenChange]);
 
   function handleAnimationEnd(e) {
     if (e.animationName === 'chatPanelExit') {
@@ -296,13 +309,19 @@ export default function ChatWidget({ activeIndex, source }) {
 
   return (
     <div className="odyssey-chat" data-chat-private>
+      <ModalBackdrop
+        isOpen={open && !closing}
+        onClose={close}
+        className="chat-backdrop"
+        ariaLabel="Close Odyssey Guide"
+      />
       {open && (
         <section
           id="odyssey-chat-panel"
           className={`chat-panel ${closing ? 'chat-panel-closing' : 'chat-panel-opening'}`}
           role="dialog"
           aria-label="Odyssey Guide"
-          aria-modal="false"
+          aria-modal="true"
           onAnimationEnd={handleAnimationEnd}
           onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); close(); } }}
         >

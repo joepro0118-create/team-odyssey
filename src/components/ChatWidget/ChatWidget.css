@@ -8,8 +8,19 @@
   color: var(--ink);
 }
 
+.chat-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1 !important;
+  display: block !important;
+  padding: 0 !important;
+}
+
 .chat-launcher {
   position: relative;
+  z-index: 3;
   display: grid;
   place-items: center;
   width: 58px;
@@ -78,6 +89,7 @@
 
 .chat-panel {
   position: absolute;
+  z-index: 2;
   right: 0;
   bottom: 70px;
   width: min(390px, calc(100vw - 32px));

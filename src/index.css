@@ -360,6 +360,225 @@ button {
   margin-bottom: 24px;
 }
 
+/* ── Schedule Header (title + add button) ── */
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.schedule-header .col-title {
+  margin-bottom: 0;
+}
+
+.schedule-add-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ocean-deep);
+  color: var(--white);
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.schedule-add-btn:hover {
+  background: var(--ocean-mid);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.schedule-add-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── Schedule Calendar Container ── */
+.schedule-calendar {
+  margin-bottom: 24px;
+}
+
+/* ── Day Pills Strip ── */
+.schedule-strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.schedule-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.schedule-day-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 12px 8px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid rgba(10, 61, 92, 0.1);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 62px;
+  flex-shrink: 0;
+  position: relative;
+  font-family: var(--font-display);
+}
+
+.schedule-day-pill:hover {
+  border-color: var(--ocean-light);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.schedule-day-pill.active {
+  background: var(--ocean-deep);
+  border-color: var(--ocean-deep);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.schedule-pill-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+  line-height: 1.2;
+}
+
+.schedule-day-pill.active .schedule-pill-label {
+  color: var(--white);
+}
+
+.schedule-pill-date {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  font-family: var(--font-body);
+}
+
+.schedule-day-pill.active .schedule-pill-date {
+  color: rgba(207, 238, 225, 0.7);
+}
+
+.schedule-density-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 2px;
+  transition: background 0.2s ease;
+}
+
+.schedule-pill-score {
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  margin-top: 1px;
+}
+
+.schedule-day-pill.active .schedule-pill-score {
+  filter: brightness(1.3);
+}
+
+/* ── Detail Card ── */
+.schedule-detail-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-md);
+  margin-top: 14px;
+  animation: factorFadeIn 0.25s ease-out;
+}
+
+.schedule-detail-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(10, 61, 92, 0.08);
+}
+
+.schedule-detail-day {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+}
+
+.schedule-detail-date {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+
+/* ── Event List ── */
+.schedule-event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.schedule-event-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(243, 233, 214, 0.35);
+  transition: background 0.15s ease;
+}
+
+.schedule-event-chip:hover {
+  background: rgba(243, 233, 214, 0.65);
+}
+
+.schedule-category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.schedule-event-title {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ocean-deep);
+}
+
+.schedule-event-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ── Empty State ── */
+.schedule-empty {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: rgba(127, 207, 182, 0.15);
+}
+
 /* =========================================================
    COLUMN 1 — Capacity Status (Dashboard)
    ========================================================= */
@@ -1466,6 +1685,35 @@ button {
   .nudge-card {
     padding: 14px;
   }
+
+  /* Schedule Calendar mobile */
+  .schedule-header {
+    margin-bottom: 14px;
+  }
+
+  .schedule-day-pill {
+    min-width: 54px;
+    padding: 8px 8px 6px;
+  }
+
+  .schedule-pill-label {
+    font-size: 11px;
+  }
+
+  .schedule-pill-date {
+    font-size: 9px;
+  }
+
+  .schedule-detail-card {
+    padding: 14px 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .schedule-add-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+  }
 }
 /* Calendar check-in shares the existing ocean palette and column layout. */
 .calendar-checkin { border: 1px solid #c5ddd7; border-radius: 18px; padding: 20px; margin-bottom: 26px; background: #f6fbf8; color: var(--ocean-deep); }
@@ -1664,4 +1912,176 @@ button {
 
 .continue-btn:active {
   transform: translateY(0) scale(0.98);
+}
+
+/* =========================================================
+   MODAL BACKDROP — Shared blur overlay
+   ========================================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 250;
+  background: rgba(10, 35, 50, 0.52);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-backdrop.modal-backdrop-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-backdrop.modal-backdrop-exiting {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-backdrop-content {
+  position: relative;
+  max-height: 90vh;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.95) translateY(10px);
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-backdrop-content.modal-content-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.modal-backdrop-content.modal-content-exiting {
+  opacity: 0;
+  transform: scale(0.96) translateY(6px);
+}
+
+/* Calendar Modal Card */
+.calendar-modal-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid rgba(197, 221, 215, 0.7);
+  border-radius: 26px;
+  padding: 30px;
+  max-width: 500px;
+  width: min(500px, calc(100vw - 40px));
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(10, 40, 58, 0.32), 0 4px 16px rgba(10, 40, 58, 0.1);
+  color: var(--ocean-deep);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f7f5;
+  border: 1px solid #c5ddd7;
+  border-radius: 50%;
+  color: var(--ocean-deep);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2;
+}
+
+.modal-close-btn:hover {
+  background: #e2f0ec;
+  transform: scale(1.08);
+}
+
+.modal-close-btn:focus-visible {
+  outline: 3px solid #237a94;
+  outline-offset: 3px;
+}
+
+.calendar-checkin-modal-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-checkin-modal-form .checkin-heading {
+  padding-right: 40px;
+  margin-bottom: 12px;
+}
+
+.calendar-checkin-modal-form fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.calendar-checkin-modal-form label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.calendar-checkin-modal-form input {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  margin-top: 7px;
+  padding: 10px;
+  border: 1px solid #abc7be;
+  border-radius: 8px;
+  background: white;
+  color: #173b49;
+  font: inherit;
+}
+
+.calendar-checkin-modal-form input[type="file"] {
+  font-size: 12px;
+}
+
+.calendar-checkin-modal-form input:focus-visible,
+.calendar-checkin-modal-form button:focus-visible {
+  outline: 3px solid #237a94;
+  outline-offset: 3px;
+}
+
+.checkin-help {
+  font-size: 11px;
+  color: #4e6c77;
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+.checkin-help code {
+  background: #ebf5f2;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 10.5px;
+}
+
+/* Calendar Result Card inline in col-calendar */
+.calendar-result-card {
+  margin-top: 16px;
+  background: #f6fbf8;
+  border: 1px solid #c5ddd7;
+  border-radius: 18px;
+  padding: 20px;
+  color: var(--ocean-deep);
 }

@@ -2,12 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Sidebar from './components/Sidebar/Sidebar';
 import CapacityGauge from './components/CapacityGauge/CapacityGauge';
 import CalendarCheckIn from './components/CapacityGauge/CalendarCheckIn';
+import CalendarResult from './components/CapacityGauge/CalendarResult';
 import LoadBalancer from './components/LoadBalancer/LoadBalancer';
+import ScheduleCalendar from './components/ScheduleCalendar/ScheduleCalendar';
 import StressTracker from './components/StressTracker/StressTracker';
 import RecoveryZone from './components/RecoveryZone/RecoveryZone';
 import LockScreen from './components/LockScreen/LockScreen';
 import WaveTransition from './components/WaveTransition/WaveTransition';
 import ChatWidget from './components/ChatWidget/ChatWidget';
+import ModalBackdrop from './components/ModalBackdrop/ModalBackdrop';
 import { useCapacity } from './hooks/useCapacity';
 import { useTasks } from './hooks/useTasks';
 import { useMood } from './hooks/useMood';
@@ -22,9 +25,13 @@ import {
 export default function App() {
   const { mood, setMoodFromEmotion } = useMood();
   const { capacity, assessment, loading, error, statusColor, assessCalendar, clearAssessment } = useCapacity(mood);
-  const { tasks, toggleTask, rebalanceTask, hideLowPriority, replaceTasks, resetTasks } = useTasks();
+  const { tasks, toggleTask, rebalanceTask, replaceTasks, resetTasks } = useTasks();
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [chatForceClose, setChatForceClose] = useState(0);
+  const [clearMessage, setClearMessage] = useState('');
 
   async function handleAssess(payload) {
+    setClearMessage('');
     const result = await assessCalendar(payload);
     if (result) replaceTasks(result.schedule.tasks);
     return result;
@@ -33,6 +40,12 @@ export default function App() {
   function handleClear() {
     clearAssessment();
     resetTasks();
+    setClearMessage("Result cleared. You're now viewing the sample preview.");
+  }
+
+  function handleOpenCalendarModal() {
+    setChatForceClose((c) => c + 1);
+    setShowCalendarModal(true);
   }
 
   const [sleepLogs] = useState([
@@ -146,9 +159,29 @@ export default function App() {
                 calendarSchedule={assessment?.schedule}
               />
               <section className="column col-calendar">
-                <div className="col-eyebrow">Setup</div>
-                <h2 className="col-title">Your Calendar</h2>
-                <CalendarCheckIn assessment={assessment} loading={loading} error={error} onAssess={handleAssess} onClear={handleClear} />
+                <div className="col-eyebrow">Schedule</div>
+                <div className="schedule-header">
+                  <h2 className="col-title">Your Calendar</h2>
+                  <button
+                    className="schedule-add-btn"
+                    onClick={handleOpenCalendarModal}
+                    aria-label="Import calendar file"
+                  >
+                    +
+                  </button>
+                </div>
+                <ScheduleCalendar
+                  tasks={combinedTasks}
+                  socialEvents={activeSocialEvents}
+                  forecast={forecast}
+                />
+                <CalendarResult
+                  assessment={assessment}
+                  loading={loading}
+                  onClear={handleClear}
+                  clearMessage={clearMessage}
+                  onOpenModal={handleOpenCalendarModal}
+                />
               </section>
               <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} calendarMode={Boolean(assessment)} />
               <RecoveryZone />
@@ -156,7 +189,41 @@ export default function App() {
           </div>
 
           <Sidebar activeIndex={activeIndex} onNavigate={goTo} />
-          <ChatWidget activeIndex={activeIndex} source={assessment?.source === 'calendar' ? 'Imported calendar' : assessment ? 'Sample calendar assessment' : 'Sample preview'} />
+          <ChatWidget
+            activeIndex={activeIndex}
+            source={assessment?.source === 'calendar' ? 'Imported calendar' : assessment ? 'Sample calendar assessment' : 'Sample preview'}
+            forceClose={chatForceClose}
+            onOpenChange={(isOpen) => {
+              if (isOpen) {
+                setShowCalendarModal(false);
+              }
+            }}
+          />
+
+          <ModalBackdrop
+            isOpen={showCalendarModal}
+            onClose={() => setShowCalendarModal(false)}
+            ariaLabel="Calendar check-in modal"
+          >
+            <div className="calendar-modal-card">
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setShowCalendarModal(false)}
+                aria-label="Close calendar check-in modal"
+              >
+                ✕
+              </button>
+              <CalendarCheckIn
+                assessment={assessment}
+                loading={loading}
+                error={error}
+                onAssess={handleAssess}
+                onClear={handleClear}
+                onSuccess={() => setShowCalendarModal(false)}
+              />
+            </div>
+          </ModalBackdrop>
         </div>
       )}
 
@@ -164,3 +231,4 @@ export default function App() {
     </>
   );
 }
+
