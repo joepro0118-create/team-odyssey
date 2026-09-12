@@ -29,6 +29,7 @@ export default function App() {
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [chatForceClose, setChatForceClose] = useState(0);
   const [clearMessage, setClearMessage] = useState('');
+  const [recoveryTargetCategory, setRecoveryTargetCategory] = useState(null);
 
   async function handleAssess(payload) {
     setClearMessage('');
@@ -118,6 +119,15 @@ export default function App() {
     scrollTo(index);
   };
 
+  const RECOVERY_COLUMN_INDEX = 4;
+
+  const handleNavigateToSupport = () => {
+    setChatForceClose((c) => c + 1);
+    setRecoveryTargetCategory('talk');
+    setActiveIndex(RECOVERY_COLUMN_INDEX);
+    scrollTo(RECOVERY_COLUMN_INDEX);
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -183,7 +193,10 @@ export default function App() {
                 />
               </section>
               <LoadBalancer tasks={tasks} toggleTask={toggleTask} rebalanceTask={rebalanceTask} calendarMode={Boolean(assessment)} />
-              <RecoveryZone />
+              <RecoveryZone
+                targetCategory={recoveryTargetCategory}
+                onTargetCategoryHandled={() => setRecoveryTargetCategory(null)}
+              />
             </div>
           </div>
 
@@ -192,6 +205,7 @@ export default function App() {
             activeIndex={activeIndex}
             source={assessment?.source === 'calendar' ? 'Imported calendar' : assessment ? 'Sample calendar assessment' : 'Sample preview'}
             forceClose={chatForceClose}
+            onNavigateToSupport={handleNavigateToSupport}
             onOpenChange={(isOpen) => {
               if (isOpen) {
                 setShowCalendarModal(false);

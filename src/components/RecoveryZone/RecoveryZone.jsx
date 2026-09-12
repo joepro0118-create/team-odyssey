@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { RECOVERY_SPOTS } from '../../data/recoverySpots';
+import SupportCallCard from './SupportCallCard';
 
 /* ── Fallback campus coordinate (Universiti Malaya) ───────── */
 const DEFAULT_COORDS = { lat: 3.1194, lng: 101.6569 };
@@ -83,11 +84,17 @@ const CATEGORIES = [
     icon: '🧘',
     gradient: 'linear-gradient(135deg, #7FCFB6 0%, #CFEEE1 100%)',
   },
+  {
+    key: 'talk',
+    label: 'Someone to Talk To',
+    icon: '🤝',
+    gradient: 'linear-gradient(135deg, #F87171 0%, #FB923C 100%)',
+  },
 ];
 
 /* ── Main Component ───────────────────────────────────────── */
-export default function RecoveryZone() {
-  const [expanded, setExpanded] = useState(null); // 'run' | 'food' | 'chill' | null
+export default function RecoveryZone({ targetCategory, onTargetCategoryHandled }) {
+  const [expanded, setExpanded] = useState(targetCategory || null); // 'run' | 'food' | 'chill' | 'talk' | null
   const [candidateSpots, setCandidateSpots] = useState([]); // List of spots for current category
   const [currentIndex, setCurrentIndex] = useState(0); // Index of currently viewed spot
   const [error, setError] = useState(null);
@@ -123,6 +130,17 @@ export default function RecoveryZone() {
     }
   }, [expanded, currentSpot]);
 
+  // Handle external pre-expand navigation (e.g. from ChatWidget shortcut)
+  useEffect(() => {
+    if (targetCategory) {
+      setExpanded(targetCategory);
+      setTimeout(() => {
+        cardRefs.current[targetCategory]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 350);
+      onTargetCategoryHandled?.();
+    }
+  }, [targetCategory, onTargetCategoryHandled]);
+
   const handleToggle = useCallback(
     (categoryKey) => {
       // Collapse if tapping the same active button
@@ -132,6 +150,12 @@ export default function RecoveryZone() {
       }
 
       setError(null);
+
+      // Dedicated support hub (Mental well-being hotlines & trusted circle)
+      if (categoryKey === 'talk') {
+        setExpanded('talk');
+        return;
+      }
 
       // Check if this category's spots are already cached for instant 0ms display
       if (categoryCacheRef.current[categoryKey]) {
@@ -220,7 +244,8 @@ export default function RecoveryZone() {
       <div className="recovery-buttons">
         {CATEGORIES.map((cat) => {
           const isActive = expanded === cat.key;
-          const showCard = isActive && (currentSpot || error);
+          const isTalk = cat.key === 'talk';
+          const showCard = isActive && (isTalk || currentSpot || error);
 
           return (
             <div key={cat.key} className="recovery-slot">
@@ -248,8 +273,13 @@ export default function RecoveryZone() {
                 aria-hidden={!showCard}
               >
                 <div className="recovery-card-inner">
+                  {/* Dedicated Support Card */}
+                  {isActive && isTalk && (
+                    <SupportCallCard />
+                  )}
+
                   {/* Result Spot */}
-                  {currentSpot && isActive && (
+                  {currentSpot && isActive && !isTalk && (
                     <>
                       {/* 1. AI Rationale / Insight */}
                       <div className="recovery-rationale">

@@ -44,7 +44,7 @@ function readHistory() {
   }
 }
 
-export default function ChatWidget({ activeIndex, source, forceClose = 0, onOpenChange }) {
+export default function ChatWidget({ activeIndex, source, forceClose = 0, onOpenChange, onNavigateToSupport }) {
   const [open, setOpen] = useState(false);
   const [closing, setClosing] = useState(false);
   const [currentChatId, setCurrentChatId] = useState(null);
@@ -337,6 +337,21 @@ export default function ChatWidget({ activeIndex, source, forceClose = 0, onOpen
                 className={showHistory ? 'is-active' : ''} aria-pressed={showHistory}>History</button>
               <button type="button" onClick={newChat} disabled={loading}>New chat</button>
             </div>
+          </div>
+          <div className="chat-support-bar">
+            <button
+              type="button"
+              className="chat-support-btn"
+              onClick={() => {
+                close();
+                onNavigateToSupport?.();
+              }}
+              title="Need immediate human support? Open hotlines and your trusted contacts"
+            >
+              <span className="chat-support-btn-icon">🤝</span>
+              <span className="chat-support-btn-label">Need someone to talk to?</span>
+              <span className="chat-support-btn-tag">Hotlines & Support →</span>
+            </button>
           </div>
           <div className="chat-log" ref={logRef} role="log" aria-live="polite" aria-relevant="additions" tabIndex={0} aria-label="Conversation">
             {showHistory ? (

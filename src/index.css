@@ -302,7 +302,7 @@ button {
   flex-shrink: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 40px 48px calc(var(--bottom-nav-height) + 24px);
+  padding: 40px 48px calc(var(--bottom-nav-height) + 60px);
   position: relative;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -1271,9 +1271,9 @@ button {
 }
 
 .recovery-card.expanded {
-  max-height: 980px;
+  max-height: 4000px;
   opacity: 1;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .recovery-card-inner {
@@ -1576,7 +1576,7 @@ button {
    ========================================================= */
 @media (max-width: 768px) {
   .column {
-    padding: 22px 14px calc(var(--bottom-nav-height) + 16px);
+    padding: 22px 14px calc(var(--bottom-nav-height) + 60px);
   }
 
   .col-title {
@@ -2084,4 +2084,613 @@ button {
   border-radius: 18px;
   padding: 20px;
   color: var(--ocean-deep);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Someone to Talk To / Support Hub (Recovery Zone)
+   ───────────────────────────────────────────────────────────── */
+.support-call-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 4px 0 16px;
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+/* ── Warm Intro Card ── */
+.support-intro-card {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border: 1px solid #fed7aa;
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.support-intro-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.support-intro-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.support-intro-title {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #9a3412;
+}
+
+.support-intro-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #7c2d12;
+  line-height: 1.5;
+}
+
+.support-emergency-badge {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  color: #991b1b;
+  font-weight: 500;
+}
+
+/* ── Support Sections ── */
+.support-section {
+  background: var(--white);
+  border: 1px solid var(--cloud-mid);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.support-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f4f8;
+}
+
+.support-section-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title-icon {
+  font-size: 18px;
+}
+
+.support-section-subtitle {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+
+.support-verified-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #047857;
+  background: #d1fae5;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* ── Hotlines List ── */
+.support-hotlines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.support-hotline-item {
+  position: relative;
+  background: #fafbfc;
+  border: 1px solid var(--cloud-mid);
+  border-left: 4px solid var(--accent-color, #0284c7);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.support-hotline-item:hover {
+  background: var(--white);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.hotline-header-toggle {
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-sm);
+  padding: 2px 0;
+  transition: opacity 0.2s ease;
+}
+
+.hotline-header-toggle:hover {
+  opacity: 0.88;
+}
+
+.hotline-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.hotline-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.hotline-chevron-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink-faint);
+  font-size: 11.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+.hotline-header-toggle:hover .hotline-chevron-indicator {
+  color: var(--ocean-mid);
+}
+
+.hotline-chevron-indicator svg {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hotline-chevron-indicator.open svg {
+  transform: rotate(180deg);
+}
+
+.hotline-toggle-hint {
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(10, 61, 92, 0.06);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.hotline-expandable-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0 2px;
+  border-top: 1px dashed rgba(10, 61, 92, 0.1);
+  animation: hotlineFadeDown 0.22s ease-out;
+}
+
+@keyframes hotlineFadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hotline-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ocean-deep);
+}
+
+.hotline-hours-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2.5px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.hotline-hours-badge.is-24x7 {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.hotline-hours-badge.is-scheduled {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.hotline-org {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.hotline-hours {
+  font-size: 12px;
+  color: #334155;
+  margin-top: 3px;
+}
+
+.hotline-desc {
+  margin: 5px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+/* After-hours fallback nudge for HEAL 15555 */
+.hotline-after-hours-nudge {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 11.5px;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.hotline-after-hours-nudge strong {
+  color: #0f172a;
+}
+
+.nudge-moon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* Hotline Action Buttons */
+.hotline-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.hotline-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.hotline-call-btn {
+  background: var(--ocean-deep);
+  color: var(--white);
+  border: 1px solid transparent;
+}
+
+.hotline-call-btn:hover {
+  background: var(--ocean-mid);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(10, 61, 92, 0.2);
+}
+
+.hotline-wa-btn {
+  background: #25d366;
+  color: var(--white);
+  border: 1px solid transparent;
+}
+
+.hotline-wa-btn:hover {
+  background: #1eb857;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(37, 211, 102, 0.3);
+}
+
+/* ── Trusted Circle (Personal Contacts) ── */
+.support-add-contact-btn {
+  padding: 6px 14px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: var(--radius-pill);
+  color: #991b1b;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.support-add-contact-btn:hover {
+  background: #fecaca;
+  color: #7f1d1d;
+  transform: translateY(-1px);
+}
+
+.support-add-form {
+  background: #fff8f8;
+  border: 1px dashed #f87171;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.add-form-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: #991b1b;
+}
+
+.device-pick-btn {
+  font-size: 11px;
+  background: var(--white);
+  border: 1px solid #fca5a5;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #991b1b;
+  cursor: pointer;
+}
+
+.device-pick-btn:hover {
+  background: #fee2e2;
+}
+
+.add-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.support-add-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.support-add-form label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.support-add-form input,
+.support-add-form select {
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--white);
+  color: var(--ink);
+  outline: none;
+}
+
+.support-add-form input:focus,
+.support-add-form select:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+}
+
+.add-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.form-cancel-btn {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: var(--white);
+  font-size: 12px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.form-save-btn {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  background: #ef4444;
+  color: var(--white);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.form-save-btn:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.form-save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.support-empty-circle {
+  text-align: center;
+  padding: 18px 12px;
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  border: 1px dashed #cbd5e1;
+}
+
+.empty-circle-icon {
+  font-size: 26px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.support-empty-circle p {
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ocean-deep);
+}
+
+.support-empty-circle span {
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  display: block;
+}
+
+.trusted-contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trusted-contact-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fcfdfe;
+  border: 1px solid var(--cloud-mid);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+}
+
+.trusted-contact-card:hover {
+  background: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.contact-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.contact-info-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.contact-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--ocean-deep);
+}
+
+.contact-rel-badge {
+  font-size: 10px;
+  font-weight: 600;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.contact-phone-number {
+  display: block;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  margin-top: 1px;
+}
+
+.contact-actions-col {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contact-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.contact-quick-btn.call-btn {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+
+.contact-quick-btn.call-btn:hover {
+  background: #e2e8f0;
+}
+
+.contact-quick-btn.wa-btn {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.contact-quick-btn.wa-btn:hover {
+  background: #bbf7d0;
+}
+
+.contact-delete-btn {
+  border: none;
+  background: transparent;
+  color: var(--ink-faint);
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.contact-delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
 }
