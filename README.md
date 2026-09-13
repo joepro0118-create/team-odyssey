@@ -66,8 +66,7 @@ Our solution, **OASIS** (Overload Analytics & Stress Intervention System), conne
 
 ## 3. Design & Prototype
 
-**UI Prototype:** [https://team-odyssey.vercel.app/](https://team-odyssey.vercel.app/)  
-*Check that it opens in an incognito window. This can be a link to Figma, Canva, Netlify, Vercel or any other board where you showcase your UI. It can be clickable with hyperlinks or simply ordered screenshots.*
+**UI Prototype:** [https://team-odyssey.vercel.app/](https://team-odyssey.vercel.app/)
 
 ---
 
