@@ -2,7 +2,7 @@
 
 **Team:** Tan Yong Hung, Joe Vei Xiang Zu, Chew Chen Xi  
 **Problem Statement:** Stress & Workload Manager  
-**Video Presentation:** [Unlisted Youtube Link]  
+**Video Presentation:** [https://youtu.be/XTvnDP3mpuU](https://youtu.be/XTvnDP3mpuU)  
 **Presentation Slides:** [OASIS by The Odyssey](https://canva.link/ssluz0v31f8f5qb)
 
 ---
