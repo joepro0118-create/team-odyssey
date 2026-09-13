@@ -133,11 +133,12 @@ export default function RecoveryZone({ targetCategory, onTargetCategoryHandled }
   // Handle external pre-expand navigation (e.g. from ChatWidget shortcut)
   useEffect(() => {
     if (targetCategory) {
-      setExpanded(targetCategory);
-      setTimeout(() => {
+      const timer = setTimeout(() => {
+        setExpanded(targetCategory);
         cardRefs.current[targetCategory]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 350);
+      }, 50);
       onTargetCategoryHandled?.();
+      return () => clearTimeout(timer);
     }
   }, [targetCategory, onTargetCategoryHandled]);
 

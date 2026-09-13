@@ -85,6 +85,19 @@ provider request. Slow requests end automatically after 25 seconds.
 
 See [backend/CHATBOT.md](backend/CHATBOT.md) for the API contract, tests and local
 service limitations. FastAPI's interactive docs are at http://127.0.0.1:8001/docs.
+
+## Deploy to Vercel
+
+The application is configured for unified fullstack deployment on Vercel using Vite static hosting and Python Serverless Functions.
+
+1. Push this repository to GitHub/GitLab/Bitbucket.
+2. In the [Vercel Dashboard](https://vercel.com/new), import the repository.
+3. Vercel automatically detects the Vite framework and builds with `npm run build` (`dist`).
+4. In **Project Settings → Environment Variables**, add:
+   - `GEMINI_API_KEY`: your Google AI Studio API key (required for Odyssey Guide & Recovery Recommender).
+   - `GEMINI_MODEL`: `gemini-3.8-flash` (optional, defaults to `gemini-3.8-flash`).
+5. Click **Deploy**. Both the Vite frontend and the Python serverless API (`/api/capacity`, `/api/health`, `/chat`, `/api/recovery-recommend`) will be deployed under the same domain.
+
 ## Original Vite template notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

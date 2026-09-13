@@ -25,7 +25,9 @@ export default function SupportCallCard() {
   const [name, setName] = useState('');
   const [relationship, setRelationship] = useState('Parent');
   const [phone, setPhone] = useState('');
-  const [hasContactPicker, setHasContactPicker] = useState(false);
+  const [hasContactPicker] = useState(() => {
+    return typeof navigator !== 'undefined' && 'contacts' in navigator && 'ContactsManager' in window;
+  });
   const [expandedHotlines, setExpandedHotlines] = useState({});
 
   const toggleHotline = (id) => {
@@ -42,12 +44,6 @@ export default function SupportCallCard() {
       console.warn('Failed to persist contacts in localStorage:', e);
     }
   }, [contacts]);
-
-  useEffect(() => {
-    if (typeof navigator !== 'undefined' && 'contacts' in navigator && 'ContactsManager' in window) {
-      setHasContactPicker(true);
-    }
-  }, []);
 
   const handleAddContact = (e) => {
     e?.preventDefault();

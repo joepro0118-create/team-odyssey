@@ -56,6 +56,21 @@ is empty, don't claim to see the page. Use plain text and short lists, no HTML.
 
 ALLOWED_ORIGINS = [f'http://{host}:{port}' for host in ('localhost', '127.0.0.1')
                    for port in (5173, 4173, 8001)]
+
+
+def is_allowed_origin(origin: str) -> bool:
+    if not origin:
+        return True
+    if origin in ALLOWED_ORIGINS:
+        return True
+    if origin.startswith('https://') and (origin.endswith('.vercel.app') or '.vercel.app:' in origin):
+        return True
+    custom = os.getenv('ALLOWED_ORIGINS')
+    if custom:
+        allowed = [o.strip() for o in custom.split(',') if o.strip()]
+        if origin in allowed or '*' in allowed:
+            return True
+    return False
 SESSION_TTL = 30 * 60
 MAX_TURNS = 20
 MAX_SESSIONS = 100
@@ -129,7 +144,7 @@ class RequestGuard:
             return await self.app(scope, receive, send)
         headers = dict(scope['headers'])
         origin = headers.get(b'origin', b'').decode()
-        if origin and origin not in ALLOWED_ORIGINS:
+        if origin and not is_allowed_origin(origin):
             return await JSONResponse({'detail': 'Use the local Odyssey application.'}, 403)(scope, receive, send)
         if scope['method'] == 'POST':
             if headers.get(b'content-type', b'').split(b';')[0].strip() != b'application/json':
@@ -160,8 +175,13 @@ class RequestGuard:
 def create_app(generator=generate_reply):
     app = FastAPI(title='Odyssey Guide API', version='1.0.0')
     app.add_middleware(RequestGuard)
-    app.add_middleware(CORSMiddleware, allow_origins=ALLOWED_ORIGINS,
-                       allow_methods=['GET', 'POST', 'DELETE'], allow_headers=['Content-Type'])
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_origin_regex=r'^https://.*\.vercel\.app$',
+        allow_methods=['GET', 'POST', 'DELETE'],
+        allow_headers=['Content-Type'],
+    )
     sessions: dict[UUID, Conversation] = {}
     active_requests: dict[UUID, tuple[asyncio.Task, asyncio.Event]] = {}
     lock = Lock()

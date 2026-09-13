@@ -3,6 +3,7 @@
 import argparse
 import json
 import math
+import os
 from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -123,6 +124,26 @@ def forecast_schedule(calendar, now):
     return {"tasks": tasks, "socialEvents": social}
 
 
+def is_allowed_origin(origin, server_port=8000):
+    if not origin:
+        return True
+    local_origins = {
+        f"http://{host}:{port}"
+        for host in ("localhost", "127.0.0.1")
+        for port in (5173, 4173, server_port)
+    }
+    if origin in local_origins:
+        return True
+    if origin.startswith("https://") and (origin.endswith(".vercel.app") or ".vercel.app:" in origin):
+        return True
+    custom = os.getenv("ALLOWED_ORIGINS")
+    if custom:
+        allowed = [o.strip() for o in custom.split(",") if o.strip()]
+        if origin in allowed or "*" in allowed:
+            return True
+    return False
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *_args):
         pass  # Calendar content and request details are never logged.
@@ -147,9 +168,7 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(404, {"error": "Endpoint not found."})
             return
         origin = self.headers.get("Origin")
-        if origin and origin not in {
-            f"http://{host}:{port}" for host in ("localhost", "127.0.0.1") for port in (5173, 4173, self.server.server_port)
-        }:
+        if origin and not is_allowed_origin(origin, self.server.server_port):
             self.reply(403, {"error": "Use the local application to submit a calendar."})
             return
         if self.headers.get_content_type() != "application/json":
