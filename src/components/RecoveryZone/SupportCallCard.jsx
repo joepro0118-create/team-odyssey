@@ -329,21 +329,33 @@ export default function SupportCallCard() {
 
               return (
                 <div key={c.id} className="trusted-contact-card">
-                  <div className="contact-avatar-col">
-                    <div className="contact-avatar">
-                      {c.name.charAt(0).toUpperCase()}
+                  <div className="contact-card-top">
+                    <div className="contact-avatar-col">
+                      <div className="contact-avatar">
+                        {c.name.charAt(0).toUpperCase()}
+                      </div>
                     </div>
+
+                    <div className="contact-info-col">
+                      <div className="contact-name-row">
+                        <span className="contact-name" title={c.name}>{c.name}</span>
+                        <span className="contact-rel-badge">{c.relationship}</span>
+                      </div>
+                      <span className="contact-phone-number">{c.phone}</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="contact-delete-btn"
+                      onClick={() => handleDeleteContact(c.id)}
+                      title="Remove contact"
+                      aria-label={`Remove ${c.name}`}
+                    >
+                      ✕
+                    </button>
                   </div>
 
-                  <div className="contact-info-col">
-                    <div className="contact-name-row">
-                      <span className="contact-name">{c.name}</span>
-                      <span className="contact-rel-badge">{c.relationship}</span>
-                    </div>
-                    <span className="contact-phone-number">{c.phone}</span>
-                  </div>
-
-                  <div className="contact-actions-col">
+                  <div className="contact-actions-row">
                     <a
                       href={`tel:${cleanPhone}`}
                       className="contact-quick-btn call-btn"
@@ -360,15 +372,6 @@ export default function SupportCallCard() {
                     >
                       💬 WhatsApp
                     </a>
-                    <button
-                      type="button"
-                      className="contact-delete-btn"
-                      onClick={() => handleDeleteContact(c.id)}
-                      title="Remove contact"
-                      aria-label={`Remove ${c.name}`}
-                    >
-                      ✕
-                    </button>
                   </div>
                 </div>
               );
