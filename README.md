@@ -60,7 +60,9 @@ Our solution, **OASIS** (Overload Analytics & Stress Intervention System), conne
 
 | Date | Mentor | Feedback Received | What Was Changed |
 | --- | --- | --- | --- |
-| 11/9/2026 | | | |
+| 10/9/2026 | Zach Khong | None as the mentorship session was cancelled last minute | - |
+| 11/9/2026 | Versha Selvakumar | None as the mentor did not show up | - |
+| 12/9/2026 | Looi Wei En | • Emphasize core prototype value and key features<br>• Minimise explanation on the technical and system architecture side of the web app, as judges can always pause to read the diagram | • Streamlined pitch deck to spotlight key selling points and core features<br>• Reduced technical architecture walkthrough time and architecture |
 
 ---
 
